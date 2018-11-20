@@ -17,6 +17,7 @@ typedef struct site {
 typedef struct elem {
     Site s;
     Site* suivant;
+    Site* precedant;
 }Elem;
 
 typedef struct list {
@@ -29,6 +30,22 @@ typedef struct list {
 Site* Site_construire(char* nom,float
 LAT,float LONG,char* categorie,char* pays,int enDanger);
 
-void Site_affichage(Site* s);
+void Site_affichage(Site *s);
+
+int Site_equals(Site *s1, Site *s2);
+
+int List_taille(List *l);
+
+List *List_nouveau();
+
+void List_ajoute(List *l, Site *s);
+
+int List_trouve(List *l, Site *s);
+
+Site *List_get(List *l, int i);
+
+void List_rm(List *l, Site *s);
+
+void List_free(List **l, int freeSite);
 
 #endif
