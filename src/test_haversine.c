@@ -23,10 +23,15 @@ int main(void) {
         return 2;// on ne passe pas le second test
     }
     
-    Site *s1 = Site_construire("Jussieu", 50, 3, "cultural", "FRANCE", FALSE);
-    Site *s2 = Site_construire("Yololand", -85.7, -170.6, "natural", "Yolo", TRUE);
+    char nom[] = {'J', 'u', 's', 's', 'i', 'e', 'u'};//"Jussieu" ;
+    Site *s1 = Site_construire(nom, 50, 3, "cultural", "FRANCE", FALSE);
+    printf("avant nom[0] = %c\n", nom[0]);
+    nom[0] = 'A';
+    printf("ap\n");
+    Site *s2 = Site_construire(nom, -85.7, -170.6, "natural", "Yolo", TRUE);
     Site *s3 = Site_construire("Test", 0, 0, "natural","Test", FALSE);
-    
+    Site_affichage(s1);
+    Site_affichage(s2);
     List_ajoute(l, s1);
     List_ajoute(l, s2);
     List_ajoute(l, s3);

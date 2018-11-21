@@ -6,8 +6,7 @@
 
 #define EXEMPLE 0
 
-Site* Site_construire(char* nom,float
-LAT,float LONG,char* categorie,char* pays,int enDanger) {
+Site* Site_construire(char* nom,float LAT,float LONG,char* categorie,char* pays,int enDanger) {
     Site* s = (Site*) malloc(sizeof(Site));
     s->nom = nom;
     s->LAT = LAT;
