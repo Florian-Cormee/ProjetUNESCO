@@ -1,11 +1,6 @@
 #ifndef SITE_H
 #define SITE_H
 
-<<<<<<< HEAD
-=======
-#define NB_SITES 1052
-
->>>>>>> 09fbc795f2234ef927e79209516cfdaee8f241bb
 /* Prototypes de Structures */
 
 typedef struct site {
@@ -34,9 +29,10 @@ LAT,float LONG,char* categorie,char* pays,int enDanger);
 
 void Site_affichage(Site* s);
 
-<<<<<<< HEAD
-Site* Site_tab_init();
+Site** Site_tab_init();
 
-=======
->>>>>>> 09fbc795f2234ef927e79209516cfdaee8f241bb
+void Site_supprime(Site* s);
+
+void Site_tab_supprime(Site** s, int n);
+
 #endif
