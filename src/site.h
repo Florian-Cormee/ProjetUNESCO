@@ -1,8 +1,6 @@
 #ifndef SITE_H
 #define SITE_H
 
-#define NB_SITES 1052
-
 /* Prototypes de Structures */
 
 typedef struct site {
@@ -32,6 +30,12 @@ Site* Site_construire(char* nom,float LAT,float LONG,char* categorie,char* pays,
 void Site_affichage(Site *s);
 
 int Site_equals(Site *s1, Site *s2);
+
+Site** Site_tab_init();
+
+void Site_supprime(Site* s);
+
+void Site_tab_supprime(Site** s, int n);
 
 int List_taille(List *l);
 
