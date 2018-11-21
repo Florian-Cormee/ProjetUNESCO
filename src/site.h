@@ -1,8 +1,6 @@
 #ifndef SITE_H
 #define SITE_H
 
-#define NB_SITES 1052
-
 /* Prototypes de Structures */
 
 typedef struct site {
@@ -30,5 +28,11 @@ Site* Site_construire(char* nom,float
 LAT,float LONG,char* categorie,char* pays,int enDanger);
 
 void Site_affichage(Site* s);
+
+Site** Site_tab_init();
+
+void Site_supprime(Site* s);
+
+void Site_tab_supprime(Site** s, int n);
 
 #endif
