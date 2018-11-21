@@ -31,7 +31,7 @@ Entree:
 Sortie:
     Tableau des distances des sites en eux et avec le point de depart
 */
-int** calculToutesDistances(List *l, double lon, double lat, int *taille);
+int** calculToutesDistances(LDC *ldc, double lon, double lat, int *taille);
 
 /*
 Affiche dans la console une matrice d'entier

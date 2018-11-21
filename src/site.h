@@ -12,43 +12,52 @@ typedef struct site {
     int enDanger ; //0,1
 } Site;
 
-typedef struct elem {
+typedef struct celluleLDC {
     Site *s;
-    struct elem *suivant;
-    struct elem *precedant;
-} Elem;
+    struct celluleLDC *prec;
+    struct celluleLDC *suiv;
+} CelluleLDC;//Elem;
 
-typedef struct list {
-    Elem* premier;
-    Elem* dernier;
-} List;
+typedef struct ldc {
+    CelluleLDC* premier;
+    CelluleLDC* dernier;
+} LDC;
 
 /* Prototypes de fonctions */
-
+// -------------------------------------- //
+//                  SITE                  //
+// -------------------------------------- //
 Site* Site_construire(char* nom,float LAT,float LONG,char* categorie,char* pays,int enDanger);
 
 void Site_affichage(Site *s);
 
 int Site_equals(Site *s1, Site *s2);
 
-Site** Site_tab_init();
-
 void Site_supprime(Site* s);
+
+Site** Site_tab_init();
 
 void Site_tab_supprime(Site** s, int n);
 
-int List_taille(List *l);
+// -------------------------------------- //
+//                  LDC                   //
+// -------------------------------------- //
+LDC *LDC_nouveau();
 
-List *List_nouveau();
+int LDC_taille(LDC *ldc);
 
-void List_ajoute(List *l, Site *s);
+void LDC_affiche(LDC *ldc);
 
-int List_trouve(List *l, Site *s);
+void LDC_ajoute_deb(LDC *ldc, Site *site);
 
-Site *List_get(List *l, int i);
+void LDC_ajoute_fin(LDC *ldc, Site *site);
 
-void List_rm(List *l, Site *s);
+int LDC_trouve(LDC *ldc, Site *site);
 
-void List_free(List **l, int freeSite);
+Site *LDC_get(LDC *ldc, int index);
+
+void LDC_rm(LDC *ldc, Site *site);
+
+void LDC_free(LDC **ldc, int freeSite);
 
 #endif
