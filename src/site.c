@@ -23,14 +23,7 @@ void Site_affichage(Site* s) {
     printf("\n");
 }
 
-#if EXEMPLE
-int main(void) {
-/* Test des ex1*/
-    Site* test = Site_construire("Tour Zamansky", 46.131930, 6.430720, "mixed", "France", 1);
-    Site_affichage(test);
-
-/* Creation tableau de site */
-
+Site* Site_tab_init() {
     FILE* fid = fopen("unesco.csv", "r");
     int n = 0;
     if(fid!=NULL) {
@@ -39,38 +32,24 @@ int main(void) {
             n++;
         }
         fclose(fid);
-        fid = fopen("unesco.csv", "r");
-        if(fid!=NULL) {
-            Site* Site_tab = (Site*) malloc(sizeof(Site)*n);
-            SkipLine(fid);
-            char* nom;
-            char* categorie;
-            char* pays;
-            double LAT, LONG;
-            int enDanger;
-            for(int i=0; i<n; i++) {
-                GetChaine(fid, 64, nom);
-                printf("%s ",nom);
-                Skip(fid);
-                LAT = GetReel(fid);
-                Skip(fid);
-                LONG = GetReel(fid);
-                Skip(fid);
-                GetChaine(fid, 64, categorie);
-                printf("%s ",nom);
-                Skip(fid);
-                GetChaine(fid, 64, pays);
-                printf("%s \n",nom);
-                Skip(fid);
-                enDanger = GetEntier(fid);
-                test = Site_construire(nom, LAT, LONG, categorie, pays, enDanger);
-                Site_tab[i]=*test;
-                Site_affichage((Site_tab+i));
-            }
+    }
+    FILE* fid = fopen("unesco.csv", "r");
+    char* s;
+    if(fid!=NULL) {
+        while(!feof(fid)) {
+            GetChaine(fid, 64, s);
+            printf("%s\n", s);
         }
-        printf("%d\n", n);
         fclose(fid);
     }
+    return NULL;
+}
+
+#if EXEMPLE
+int main(void) {
+/* Test des ex1*/
+    Site* test = Site_construire("Tour Zamansky", 46.131930, 6.430720, "mixed", "France", 1);
+    Site_affichage(test);
     return 0;
 }
 #endif
