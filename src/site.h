@@ -15,20 +15,19 @@ typedef struct site {
 } Site;
 
 typedef struct elem {
-    Site s;
-    Site* suivant;
-    Site* precedant;
-}Elem;
+    Site *s;
+    struct elem *suivant;
+    struct elem *precedant;
+} Elem;
 
 typedef struct list {
-    Site* premier;
-    Site* dernier;
-}List;
+    Elem* premier;
+    Elem* dernier;
+} List;
 
 /* Prototypes de fonctions */
 
-Site* Site_construire(char* nom,float
-LAT,float LONG,char* categorie,char* pays,int enDanger);
+Site* Site_construire(char* nom,float LAT,float LONG,char* categorie,char* pays,int enDanger);
 
 void Site_affichage(Site *s);
 

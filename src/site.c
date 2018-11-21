@@ -4,7 +4,7 @@
 #include "site.h"
 #include "utils.h"
 
-#define EXEMPLE 1
+#define EXEMPLE 0
 
 Site* Site_construire(char* nom,float
 LAT,float LONG,char* categorie,char* pays,int enDanger) {
@@ -56,8 +56,8 @@ void List_ajoute(List *l, Site *s){
         l->premier = e;
         l->dernier = e;
     } else {
-        Elem courrant = l->dernier;
-        courrant->suivant = e;
+        Elem *courant = l->dernier;
+        courant->suivant = e;
         e->precedant = courant;
         l->dernier = e;
     }
@@ -77,17 +77,19 @@ int List_trouve(List *l, Site *s){
 }
 
 Site *List_get(List *l, int i){
-    if(l == NULL || s == NULL) { return ERROR; }
+    if(l == NULL || i < 0) { return NULL; }
     Elem *courant = l->premier;
     
     for(int index = 0; index < i && courant != NULL; index++){
         courant = courant->suivant;
-    } 
+    }
+
+    if (courant == NULL) { return NULL; }
     return courant->s;
 }
 
 void List_rm(List *l, Site *s){
-    if(l == NULL || s == NULL) { return ERROR; }
+    if(l == NULL || s == NULL) { return; }
     Elem *courant = l->premier;
     
     while(courant != NULL && Site_equals(courant->s, s)) {
@@ -121,9 +123,19 @@ void List_free(List **l, int freeSite){
     *l = NULL;
 }
 
+int List_taille(List *list){
+	if(list == NULL) { return ERROR; }
+	int size = 0; // compteur d'elements de la liste
+
+	for(Elem *e = list->premier; e != NULL; e = e->suivant){
+		size++;
+	}
+
+	return size;
+}
+
 #if EXEMPLE
 int main(void) {
-/* 
     Site *test = Site_construire("Tour Zamansky", 46.131930, 6.430720, "mixed", "France", 1);
     Site_affichage(test);
     return 0;

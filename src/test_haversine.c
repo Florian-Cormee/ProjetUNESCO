@@ -25,13 +25,15 @@ int main(void) {
     
     Site *s1 = Site_construire("Jussieu", 50, 3, "cultural", "FRANCE", FALSE);
     Site *s2 = Site_construire("Yololand", -85.7, -170.6, "natural", "Yolo", TRUE);
+    Site *s3 = Site_construire("Test", 0, 0, "natural","Test", FALSE);
     
     List_ajoute(l, s1);
     List_ajoute(l, s2);
+    List_ajoute(l, s3);
     
     dists = calculToutesDistances(l, 83.2, 165.3, &dists_taille);
+    printf("\n");
     afficheTab(dists, dists_taille);
-    
     freeTab(dists, dists_taille);
     List_free(&l, TRUE);
     return 0; // on passe tous les tests

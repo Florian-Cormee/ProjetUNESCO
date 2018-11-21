@@ -18,6 +18,8 @@ Sortie:
 */
 int convKmCm(double d);
 
+int calculDistanceCm(double lat1, double lon1, double lat2, double lon2);
+
 /*
 Calcule (en cm) toutes les distances entres tous les sites et le point de depart
 
