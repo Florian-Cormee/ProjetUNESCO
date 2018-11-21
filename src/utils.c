@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include "site.h"
 #include "haversine.h"
+
 void afficheTab(int **tab, int taille);
+
 int convKmCm(double d){
     double nombre = d * 100;
     int dm = (int) nombre;
@@ -16,8 +18,8 @@ int calculDistanceCm(double lat1, double lon1, double lat2, double lon2){
     return convKmCm(calculDistance(lat1,lon1,lat2,lon2));
 }
 
-int** calculToutesDistances(List *l, double lon, double lat, int *taille){
-    int longueur = List_taille(l); // longueur de la List l
+int** calculToutesDistances(LDC *l, double lon, double lat, int *taille){
+    int longueur = LDC_taille(l); // longueur de la List l
     int **dist = (int **) malloc(sizeof(int *) * (longueur + 1));// matrice carree diagonale des distances entre sites et origine
     int i = 0; // index de l'iteration mere
     int j = 0; // index de la sous iteration
@@ -29,9 +31,9 @@ int** calculToutesDistances(List *l, double lon, double lat, int *taille){
         for (int j0 = 0; j0 < longueur+1; ++j0) { dist[i0][j0] = -1; }//on l'initialise avec une valeur par defaut de -1
     }
 
-    for(Elem *courant1 = l->premier; courant1 != NULL; courant1 = courant1->suivant){//iteration sur la liste
+    for(CelluleLDC *courant1 = l->premier; courant1 != NULL; courant1 = courant1->suiv){//iteration sur la liste
         j=0;
-        for(Elem *courant2 = l->premier; courant2 != NULL; courant2 = courant2->suivant){
+        for(CelluleLDC *courant2 = l->premier; courant2 != NULL; courant2 = courant2->suiv){
             if(dist[i][j] == -1){//on a pas calcule la distance
                 if(courant1 == courant2) {//on veut connaitre la distance entre deux points identiques
                     distance = 0;

@@ -9,23 +9,23 @@
 #define EXEMPLE 0
 
 Site* Site_construire(char* nom,float LAT,float LONG,char* categorie,char* pays,int enDanger) {
-    Site* s = (Site*) malloc(sizeof(Site));
-    s->nom = strdup(nom);
-    s->LAT = LAT;
-    s->LONG = LONG;
-    s->categorie = strdup(categorie);
-    s->pays = strdup(pays);
-    s->enDanger = enDanger;
-    return s;
+    Site* site = (Site*) malloc(sizeof(Site));
+    site->nom = strdup(nom);
+    site->LAT = LAT;
+    site->LONG = LONG;
+    site->categorie = strdup(categorie);
+    site->pays = strdup(pays);
+    site->enDanger = enDanger;
+    return site;
 }
 
-void Site_affichage(Site* s) {
-    printf("%s / %s / %s", s->nom, s->categorie, s->pays);
-    if(s->enDanger) {printf(" / Endangered");}
+void Site_affichage(Site* site) {
+    printf("%s / %s / %s", site->nom, site->categorie, site->pays);
+    if(site->enDanger) {printf(" / Endangered");}
     printf("\n");
 }
 
-int Site_equals(Site *s1, Site *s2){
+int Site_equals(Site *s1, Site *s2) {
     if(s1 == NULL || s2 == NULL) { return ERROR; }
     if(s1 == s2) { return TRUE; }//Meme adresse memoire
     
@@ -38,101 +38,9 @@ int Site_equals(Site *s1, Site *s2){
     return TRUE;
 }
 
-/*  ---------------- List ---------------- */
-List *List_nouveau(){
-    List *l = (List *) malloc(sizeof(List));
-    l->premier = NULL;
-    l->dernier = NULL;
+void Site_supprime(Site* site) {
+    free(site);
 }
-
-void List_ajoute(List *l, Site *s){
-    if(l == NULL || s == NULL) { return; }
-    
-    Elem *e = (Elem *) malloc(sizeof(Elem));
-    e->s = s;
-    e->precedant = NULL;
-    e->suivant = NULL;
-    
-    if(l->dernier == NULL){// si la liste est vide
-        l->premier = e;
-        l->dernier = e;
-    } else {
-        Elem *courant = l->dernier;
-        courant->suivant = e;
-        e->precedant = courant;
-        l->dernier = e;
-    }
-}
-
-int List_trouve(List *l, Site *s){
-    if(l == NULL || s == NULL) { return ERROR; }
-    int i = 0;
-    
-    for(Elem *e = l->premier; e != NULL; e = e->suivant) {
-        if(Site_equals(e->s, s)){
-            return i;
-        }
-        i++;
-    }
-    return ERROR;
-}
-
-Site *List_get(List *l, int i){
-    if(l == NULL || i < 0) { return NULL; }
-    Elem *courant = l->premier;
-    
-    for(int index = 0; index < i && courant != NULL; index++){
-        courant = courant->suivant;
-    }
-
-    if (courant == NULL) { return NULL; }
-    return courant->s;
-}
-
-void List_rm(List *l, Site *s){
-    if(l == NULL || s == NULL) { return; }
-    Elem *courant = l->premier;
-    
-    while(courant != NULL && Site_equals(courant->s, s)) {
-        courant = courant->suivant;
-    }
-    if(courant->precedant == NULL && courant->suivant == NULL) {//c'est l'unique element de la liste
-        l->premier = NULL;
-        l->dernier = NULL;
-    } if(courant->precedant == NULL){//c'est le premier element de la liste
-        (courant->suivant)->precedant = NULL;
-        l->premier = courant->suivant;
-    } else if(courant->suivant == NULL){//c'est le dernier element de la liste
-        (courant->precedant)->suivant = NULL;
-        l->dernier = courant->precedant;
-    } else {
-        (courant->precedant)->suivant = courant->suivant;
-        (courant->suivant)->precedant = courant->precedant;
-    }
-    free(courant);
-}
-
-void List_free(List **l, int freeSite){
-    if(l == NULL || *l == NULL) { return; }
-    for(Elem *e = (*l)->premier; e != NULL; e = (*l)->premier){
-        (*l)->premier = e->suivant;
-        if(freeSite) {
-            free(e->s);
-        }
-        free(e);
-    }
-    *l = NULL;
-}
-
-int List_taille(List *list){
-	if(list == NULL) { return ERROR; }
-	int size = 0; // compteur d'elements de la liste
-
-	for(Elem *e = list->premier; e != NULL; e = e->suivant){
-		size++;
-	}
-
-	return size;
 
 Site** Site_tab_init(int *n) {
     FILE* fid = fopen("unesco.csv", "r");
@@ -147,7 +55,7 @@ Site** Site_tab_init(int *n) {
     fid = fopen("unesco.csv", "r");
         printf("Il y a %d element(s)\n", *n);
     (*n)-=2;
-    Site** s = (Site **)malloc(sizeof(Site)*(*n));
+    Site** site = (Site **)malloc(sizeof(Site)*(*n));
     char nom[512], categorie[32], pays[256], continents[512];
     double LAT, LONG;
     int EnDanger;
@@ -162,26 +70,153 @@ Site** Site_tab_init(int *n) {
             GetChaine(fid, 256, pays);
             GetChaine(fid, 512, continents);
             EnDanger = GetEntier(fid);
-            *(s+i) = Site_construire(nom, LAT, LONG, categorie, pays, EnDanger);
-            Site_affichage(*(s+i));
+            *(site+i) = Site_construire(nom, LAT, LONG, categorie, pays, EnDanger);
+            Site_affichage(*(site+i));
         }
         fclose(fid);
     }
-    return s;
+    return site;
 }
 
-void Site_supprime(Site* s)
-{
-    free(s);
+
+void Site_tab_supprime(Site** site,int n) {
+    for(int i=0; i<n; i++) {
+            free(*(site+i));
+    }
 }
 
-void Site_tab_supprime(Site** s,int n)
-{
-    for(int i=0; i<n; i++)
-    {
-            free(*(s+i));
+/*  ---------------- LDC ---------------- */
+LDC *LDC_nouveau() {
+    LDC *ldc = (LDC *) malloc(sizeof(LDC));
+    ldc->premier = NULL;
+    ldc->dernier = NULL;
+}
+
+int LDC_taille(LDC *list) {
+	if(list == NULL) { return ERROR; }
+	int size = 0; // compteur d'elements de la liste
+
+	for(CelluleLDC *cell = list->premier; cell != NULL; cell = cell->suiv){
+		size++;
+	}
+
+	return size;
+}
+
+void LDC_affiche(LDC *ldc) {
+	printf("LDC {\n");
+
+	for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+		printf("\t%p > prec = %p, suiv= %p, s=", cell, cell->prec, cell->suiv);
+		Site_affichage(cell->s);
+	}
+	printf("}\n");
+}
+
+void LDC_ajoute_deb(LDC *ldc, Site *site) {
+	if(ldc == NULL || site == NULL) { return; }
+    
+    CelluleLDC *cell = (CelluleLDC *) malloc(sizeof(CelluleLDC));
+    cell->s = site;
+    cell->prec = NULL;
+    cell->suiv = NULL;
+    
+    if(ldc->dernier == NULL){// si la liste est vide
+        ldc->premier = cell;
+        ldc->dernier = cell;
+    } else {
+        CelluleLDC *cellp = ldc->premier;
+        cell->suiv = cellp;
+        cellp->prec = cell;
+        ldc->premier = cell;
+    }
+}
+
+void LDC_ajoute_fin(LDC *ldc, Site *site){
+    if(ldc == NULL || site == NULL) { return; }
+    
+    CelluleLDC *cell = (CelluleLDC *) malloc(sizeof(CelluleLDC));
+    cell->s = site;
+    cell->prec = NULL;
+    cell->suiv = NULL;
+    
+    if(ldc->dernier == NULL){// si la liste est vide
+        ldc->premier = cell;
+        ldc->dernier = cell;
+    } else {
+        CelluleLDC *celld = ldc->dernier;
+        celld->suiv = cell;
+        cell->prec = celld;
+        ldc->dernier = cell;
+    }
+}
+
+int LDC_trouve(LDC *ldc, Site *site){
+    if(ldc == NULL || site == NULL) { return ERROR; }
+
+    int i = 0;
+    
+    for(CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+        if(Site_equals(cell->s, site)){
+            return i;
+        }
+        i++;
+    }
+    return ERROR;
+}
+
+Site *LDC_get(LDC *ldc, int i){
+    if(ldc == NULL || i < 0) { return NULL; }
+
+    CelluleLDC *courant = ldc->premier;
+    
+    for(int index = 0; index < i && courant != NULL; index++){
+        courant = courant->suiv;
     }
 
+    if (courant == NULL) { return NULL; }
+    return courant->s;
+}
+
+void LDC_rm(LDC *ldc, Site *site){
+    if(ldc == NULL || site == NULL) { return; }
+
+    CelluleLDC *courant = ldc->premier;
+    
+    while(courant != NULL && !Site_equals(courant->s, site)) {
+        courant = courant->suiv;
+    }
+    if(courant->prec == NULL && courant->suiv == NULL) {//c'est l'unique element de la liste
+    	printf("rm unique element\n" );
+        ldc->premier = NULL;
+        ldc->dernier = NULL;
+    } if(courant->prec == NULL){//c'est le premier element de la liste
+    	printf("rm deb\n");
+        (courant->suiv)->prec = NULL;
+        ldc->premier = courant->suiv;
+    } else if(courant->suiv == NULL){//c'est le dernier element de la liste
+    	printf("rm fin\n");
+        (courant->prec)->suiv = NULL;
+        ldc->dernier = courant->prec;
+    } else {
+    	printf("rm autre\n");
+        (courant->prec)->suiv = courant->suiv;
+        (courant->suiv)->prec = courant->prec;
+    }
+    free(courant);
+}
+
+void LDC_free(LDC **ldc, int freeSite){
+    if(ldc == NULL || *ldc == NULL) { return; }
+
+    for(CelluleLDC *cell = (*ldc)->premier; cell != NULL; cell = (*ldc)->premier){
+        (*ldc)->premier = cell->suiv;
+        if(freeSite) {
+            free(cell->s);
+        }
+        free(cell);
+    }
+    *ldc = NULL;
 }
 
 #if EXEMPLE

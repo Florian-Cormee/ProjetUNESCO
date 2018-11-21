@@ -6,7 +6,7 @@
 int main(void) {
     double dist = calculDistance(50, 3, 49, 5); //distance entre les points (50, 3) et (49, 5)
     double intVal = 182.27; // valeur attendue
-    List *l = List_nouveau(); // liste de sites
+    LDC *l = LDC_nouveau(); // liste de sites
     int **dists = NULL; // distances entres tous les points
     int dists_taille = 0;
     
@@ -28,19 +28,31 @@ int main(void) {
     printf("avant nom[0] = %c\n", nom[0]);
     nom[0] = 'A';
     printf("ap\n");
-    Site *s2 = Site_construire(nom, -85.7, -170.6, "natural", "Yolo", TRUE);
-    Site *s3 = Site_construire("Test", 0, 0, "natural","Test", FALSE);
+    Site *s2 = Site_construire("nom", -85.7, -170.6, "natural", "Yolo", TRUE);
+    Site *s3 = Site_construire(nom, -85.7, -170.6, "natural", "Yolo", TRUE);
     Site_affichage(s1);
     Site_affichage(s2);
-    List_ajoute(l, s1);
-    List_ajoute(l, s2);
-    List_ajoute(l, s3);
+    LDC_ajoute_fin(l, s1);
+    LDC_ajoute_fin(l, s2);
+    LDC_ajoute_deb(l, s3);
     
     dists = calculToutesDistances(l, 83.2, 165.3, &dists_taille);
     printf("\n");
     afficheTab(dists, dists_taille);
+    LDC_affiche(l);
+
+    //Site *s4 = LDC_get(l, 1);
+    printf("s2 equals s3 ? %d\n", Site_equals(s2, s3));
+    printf("Indice de s2 = %d\n", LDC_trouve(l, s2));
+
+    Site *s = LDC_get(l, LDC_trouve(l, s2));
+    printf("%p et on obtient %p\n", s2, s);
+
+    LDC_rm(l, s1);
+    LDC_affiche(l);
+
     freeTab(dists, dists_taille);
-    List_free(&l, TRUE);
+    LDC_free(&l, TRUE);
     return 0; // on passe tous les tests
 }
 
