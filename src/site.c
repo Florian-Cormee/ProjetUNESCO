@@ -1,68 +1,70 @@
-
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "lectureFichiers.h"
 #include "site.h"
 #include "utils.h"
 
-#define EXEMPLE 0
-
-Site* Site_construire(char* nom,float LAT,float LONG,char* categorie,char* pays,int enDanger) {
-    Site* site = (Site*) malloc(sizeof(Site));
+Site *Site_construire(int n, char *nom, double lat, double lon, char *categorie, char *pays, int enDanger) {
+    Site *site = (Site *) malloc(sizeof(Site));
+    site->n = n;
     site->nom = strdup(nom);
-    site->LAT = LAT;
-    site->LONG = LONG;
+    site->lat = lat;
+    site->lon = lon;
     site->categorie = strdup(categorie);
     site->pays = strdup(pays);
     site->enDanger = enDanger;
     return site;
 }
 
-void Site_affichage(Site* site) {
+void Site_affichage(Site *site) {
     printf("%s / %s / %s", site->nom, site->categorie, site->pays);
-    if(site->enDanger) {printf(" / Endangered");}
+    if (site->enDanger) { printf(" / Endangered"); }
     printf("\n");
 }
 
-int Site_equals(Site *s1, Site *s2) {
-    if(s1 == NULL || s2 == NULL) { return ERROR; }
-    if(s1 == s2) { return TRUE; }//Meme adresse memoire
-    
-    if(s1->LAT != s2->LAT) { return FALSE; }
-    if(s1->LONG != s2->LONG) { return FALSE; }
-    if(s1->enDanger != s2->enDanger) { return FALSE; }
-    if(!strcmp(s1->nom, s2->nom)) { return FALSE; }
-    if(!strcmp(s1->categorie, s2->categorie)) { return FALSE; }
-    if(!strcmp(s1->pays, s2->pays)) { return FALSE; }
+int Site_equals(Site *site1, Site *site2) {
+    if (site1 == NULL || site2 == NULL) { return ERROR; }
+    if (site1 == site2) { return TRUE; }//Meme adresse memoire
+
+    if (site1->lat != site2->lat) { return FALSE; }
+    if (site1->lon != site2->lon) { return FALSE; }
+    if (site1->enDanger != site2->enDanger) { return FALSE; }
+    if (!strcmp(site1->nom, site2->nom)) { return FALSE; }
+    if (!strcmp(site1->categorie, site2->categorie)) { return FALSE; }
+    if (!strcmp(site1->pays, site2->pays)) { return FALSE; }
     return TRUE;
 }
 
-void Site_supprime(Site* site) {
+void Site_supprime(Site *site) {
     free(site);
 }
 
-Site** Site_tab_init(int *n) {
-    FILE* fid = fopen("unesco.csv", "r");
+Site **Site_tab_init(int *n) {
+    // Mesure du nombre de sites dans le fichier : unesco.csv
+    FILE *fid = fopen("unesco.csv", "r");
+    printf("fid == NULL ? %d\n", fid == NULL);
     *n = 0;
-    if(fid!=NULL) {
-        while(!feof(fid)) {
+    if (fid != NULL) {// si le fichier existe
+        while (!feof(fid)) {// tant qu'on n'a pas atteint la fin du fichier
             (*n)++;
             SkipLine(fid);
         }
         fclose(fid);
     }
+    (*n) -= 2;// On ne compte pas la 1ere ligne ni la derniere qui est vide
+    printf("Il y a %d element(s)\n", *n);
+
+    // Chargement des sites
     fid = fopen("unesco.csv", "r");
-        printf("Il y a %d element(s)\n", *n);
-    (*n)-=2;
-    Site** site = (Site **)malloc(sizeof(Site)*(*n));
+    Site **site = (Site **) malloc(sizeof(Site) * (*n));// tableau de tous les sites
     char nom[512], categorie[32], pays[256], continents[512];
     double LAT, LONG;
     int EnDanger;
-    if(fid!=NULL) {
+
+    if (fid != NULL) {// si le fichier existe
         SkipLine(fid);
-        for(int i=0; i<*n; i++)
-        {
+        for (int i = 0; i < *n; i++) {
             GetChaine(fid, 512, nom);
             LAT = GetReel(fid);
             LONG = GetReel(fid);
@@ -70,18 +72,17 @@ Site** Site_tab_init(int *n) {
             GetChaine(fid, 256, pays);
             GetChaine(fid, 512, continents);
             EnDanger = GetEntier(fid);
-            *(site+i) = Site_construire(nom, LAT, LONG, categorie, pays, EnDanger);
-            Site_affichage(*(site+i));
+            site[i] = Site_construire(i, nom, LAT, LONG, categorie, pays, EnDanger);
+            Site_affichage(site[i]);
         }
         fclose(fid);
     }
     return site;
 }
 
-
-void Site_tab_supprime(Site** site,int n) {
-    for(int i=0; i<n; i++) {
-            free(*(site+i));
+void Site_tab_supprime(Site **pSite, int n) {
+    for (int i = 0; i < n; i++) {
+        free(*(pSite + i));
     }
 }
 
@@ -93,35 +94,35 @@ LDC *LDC_nouveau() {
 }
 
 int LDC_taille(LDC *list) {
-	if(list == NULL) { return ERROR; }
-	int size = 0; // compteur d'elements de la liste
+    if (list == NULL) { return ERROR; }
+    int size = 0; // compteur d'elements de la liste
 
-	for(CelluleLDC *cell = list->premier; cell != NULL; cell = cell->suiv){
-		size++;
-	}
+    for (CelluleLDC *cell = list->premier; cell != NULL; cell = cell->suiv) {
+        size++;
+    }
 
-	return size;
+    return size;
 }
 
 void LDC_affiche(LDC *ldc) {
-	printf("LDC {\n");
+    printf("LDC {\n");
 
-	for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
-		printf("\t%p > prec = %p, suiv= %p, s=", cell, cell->prec, cell->suiv);
-		Site_affichage(cell->s);
-	}
-	printf("}\n");
+    for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+        printf("\t%p > prec = %p, suiv= %p, s=", cell, cell->prec, cell->suiv);
+        Site_affichage(cell->s);
+    }
+    printf("}\n");
 }
 
 void LDC_ajoute_deb(LDC *ldc, Site *site) {
-	if(ldc == NULL || site == NULL) { return; }
-    
+    if (ldc == NULL || site == NULL) { return; }
+
     CelluleLDC *cell = (CelluleLDC *) malloc(sizeof(CelluleLDC));
     cell->s = site;
     cell->prec = NULL;
     cell->suiv = NULL;
-    
-    if(ldc->dernier == NULL){// si la liste est vide
+
+    if (ldc->dernier == NULL) {// si la liste est vide
         ldc->premier = cell;
         ldc->dernier = cell;
     } else {
@@ -132,15 +133,15 @@ void LDC_ajoute_deb(LDC *ldc, Site *site) {
     }
 }
 
-void LDC_ajoute_fin(LDC *ldc, Site *site){
-    if(ldc == NULL || site == NULL) { return; }
-    
+void LDC_ajoute_fin(LDC *ldc, Site *site) {
+    if (ldc == NULL || site == NULL) { return; }
+
     CelluleLDC *cell = (CelluleLDC *) malloc(sizeof(CelluleLDC));
     cell->s = site;
     cell->prec = NULL;
     cell->suiv = NULL;
-    
-    if(ldc->dernier == NULL){// si la liste est vide
+
+    if (ldc->dernier == NULL) {// si la liste est vide
         ldc->premier = cell;
         ldc->dernier = cell;
     } else {
@@ -151,13 +152,13 @@ void LDC_ajoute_fin(LDC *ldc, Site *site){
     }
 }
 
-int LDC_trouve(LDC *ldc, Site *site){
-    if(ldc == NULL || site == NULL) { return ERROR; }
+int LDC_trouve(LDC *ldc, Site *site) {
+    if (ldc == NULL || site == NULL) { return ERROR; }
 
     int i = 0;
-    
-    for(CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
-        if(Site_equals(cell->s, site)){
+
+    for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+        if (Site_equals(cell->s, site)) {
             return i;
         }
         i++;
@@ -165,12 +166,12 @@ int LDC_trouve(LDC *ldc, Site *site){
     return ERROR;
 }
 
-Site *LDC_get(LDC *ldc, int i){
-    if(ldc == NULL || i < 0) { return NULL; }
+Site *LDC_get(LDC *ldc, int i) {
+    if (ldc == NULL || i < 0) { return NULL; }
 
     CelluleLDC *courant = ldc->premier;
-    
-    for(int index = 0; index < i && courant != NULL; index++){
+
+    for (int index = 0; index < i && courant != NULL; index++) {
         courant = courant->suiv;
     }
 
@@ -178,57 +179,46 @@ Site *LDC_get(LDC *ldc, int i){
     return courant->s;
 }
 
-void LDC_rm(LDC *ldc, Site *site){
-    if(ldc == NULL || site == NULL) { return; }
+void LDC_rm(LDC *ldc, Site *site) {
+    if (ldc == NULL || site == NULL) { return; }
 
     CelluleLDC *courant = ldc->premier;
-    
-    while(courant != NULL && !Site_equals(courant->s, site)) {
+
+    while (courant != NULL && !Site_equals(courant->s, site)) {
         courant = courant->suiv;
     }
-    if(courant->prec == NULL && courant->suiv == NULL) {//c'est l'unique element de la liste
-    	printf("rm unique element\n" );
+
+    if (courant == NULL) { return; }
+
+    if (courant->prec == NULL && courant->suiv == NULL) {//c'est l'unique element de la liste
+        // printf("rm unique element\n");
         ldc->premier = NULL;
         ldc->dernier = NULL;
-    } if(courant->prec == NULL){//c'est le premier element de la liste
-    	printf("rm deb\n");
+    } else if (courant->prec == NULL) {//c'est le premier element de la liste
+        // printf("rm deb\n");
         (courant->suiv)->prec = NULL;
         ldc->premier = courant->suiv;
-    } else if(courant->suiv == NULL){//c'est le dernier element de la liste
-    	printf("rm fin\n");
+    } else if (courant->suiv == NULL) {//c'est le dernier element de la liste
+        // printf("rm fin\n");
         (courant->prec)->suiv = NULL;
         ldc->dernier = courant->prec;
     } else {
-    	printf("rm autre\n");
+        // printf("rm autre\n");
         (courant->prec)->suiv = courant->suiv;
         (courant->suiv)->prec = courant->prec;
     }
     free(courant);
 }
 
-void LDC_free(LDC **ldc, int freeSite){
-    if(ldc == NULL || *ldc == NULL) { return; }
+void LDC_free(LDC **ldc, int freeSite) {
+    if (ldc == NULL || *ldc == NULL) { return; }
 
-    for(CelluleLDC *cell = (*ldc)->premier; cell != NULL; cell = (*ldc)->premier){
+    for (CelluleLDC *cell = (*ldc)->premier; cell != NULL; cell = (*ldc)->premier) {
         (*ldc)->premier = cell->suiv;
-        if(freeSite) {
+        if (freeSite) {
             free(cell->s);
         }
         free(cell);
     }
     *ldc = NULL;
 }
-
-#if EXEMPLE
-int main(void) {
-/* Test des ex1*/
-    Site* test = Site_construire("Tour Zamansky", 46.131930, 6.430720, "mixed", "France", 1);
-    Site_affichage(test);
-    int n = 0;
-    Site** test_tab = Site_tab_init(&n);
-    printf("Il y a %d element(s)\n", n);
-    Site_supprime(test);
-    Site_tab_supprime(test_tab, n);
-    return 0;
-}
-#endif

@@ -3,9 +3,9 @@
 
 #include "site.h"
 
-#define TRUE 1
-#define FALSE 0
-#define ERROR -1
+#define TRUE (1)
+#define FALSE (0)
+#define ERROR (-1)
 
 /* 
 Converti la distance en m en cm.
@@ -16,9 +16,9 @@ Entree:
 Sortie:
     Distance arondie en cm
 */
-int convKmCm(double d);
+long convKmCm(double d);
 
-int calculDistanceCm(double lat1, double lon1, double lat2, double lon2);
+long calculDistanceCm(double lat1, double lon1, double lat2, double lon2);
 
 /*
 Calcule (en cm) toutes les distances entres tous les sites et le point de depart
@@ -31,7 +31,7 @@ Entree:
 Sortie:
     Tableau des distances des sites en eux et avec le point de depart
 */
-int** calculToutesDistances(LDC *ldc, double lon, double lat, int *taille);
+long **calculToutesDistances(LDC *ldc, double lon, double lat, int *taille);
 
 /*
 Affiche dans la console une matrice d'entier
@@ -40,8 +40,12 @@ Entree:
     tab     matrice carre d'entiers
     taille  taille de la matrice
 */
-void afficheTab(int **tab, int taille);
+void afficheTab(long **tab, int taille);
 
-void freeTab(int **tab, int taille);
+void freeTab(long **tab, int taille);
+
+long dist(long **tabDist, Site *site1, Site *site2);
+
+int score(LDC *ldc, int printDetails);
 
 #endif
