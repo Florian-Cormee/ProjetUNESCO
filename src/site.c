@@ -27,12 +27,13 @@ int Site_equals(Site *site1, Site *site2) {
     if (site1 == NULL || site2 == NULL) { return ERROR; }
     if (site1 == site2) { return TRUE; }//Meme adresse memoire
 
+    if (site1->n != site2->n) { return FALSE; }
     if (site1->lat != site2->lat) { return FALSE; }
     if (site1->lon != site2->lon) { return FALSE; }
     if (site1->enDanger != site2->enDanger) { return FALSE; }
-    if (!strcmp(site1->nom, site2->nom)) { return FALSE; }
-    if (!strcmp(site1->categorie, site2->categorie)) { return FALSE; }
-    if (!strcmp(site1->pays, site2->pays)) { return FALSE; }
+    if (strcmp(site1->nom, site2->nom) != 0) { return FALSE; }
+    if (strcmp(site1->categorie, site2->categorie) != 0) { return FALSE; }
+    if (strcmp(site1->pays, site2->pays) != 0) { return FALSE; }
     return TRUE;
 }
 

@@ -40,12 +40,12 @@ int main(void) {
     }
 
     char nom[] = {'J', 'u', 's', 's', 'i', 'e', 'u'};//"Jussieu" ;
-    Site *s1 = Site_construire(0, nom, 50, 3, "cultural", "FRANCE", FALSE);
+    Site *s1 = Site_construire(0, nom, 50, 3, "Cultural", "FRANCE", FALSE);
     printf("avant nom[0] = %c\n", nom[0]);
     nom[0] = 'A';
     printf("ap\n");
-    Site *s2 = Site_construire(1, "nom", -85.7, -170.6, "natural", "Yolo", TRUE);
-    Site *s3 = Site_construire(2, nom, -85.7, -170.6, "natural", "Yolo", TRUE);
+    Site *s2 = Site_construire(1, "nom", -85.7, -170.6, "Natural", "Yolo", TRUE);
+    Site *s3 = Site_construire(2, nom, -85.7, -170.6, "Natural", "Yolo", TRUE);
     Site_affichage(s1);
     Site_affichage(s2);
     LDC_ajoute_fin(l, s1);
@@ -64,11 +64,13 @@ int main(void) {
     Site *s = LDC_get(l, LDC_trouve(l, s2));
     printf("%p et on obtient %p\n", s2, s);
 
-    LDC_rm(l, s1);
-    LDC_affiche(l);
-
+    //LDC_rm(l, s1);
+    //LDC_affiche(l);
+    printPath(l, 83.2, 165.3, dists, dists_taille);
     printf("Score total : %4d pts !\n",
            score(l, 1));
+
+    showMap(l, 83.2, 165.3);
 
     freeTab(dists, dists_taille);
     LDC_free(&l, TRUE);

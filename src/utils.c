@@ -14,6 +14,10 @@ long convKmCm(double d) {
     return dm;
 }
 
+double convCmKm(long d) {
+    return (double) d / 100;
+}
+
 long calculDistanceCm(double lat1, double lon1, double lat2, double lon2) {
     return convKmCm(calculDistance(lat1, lon1, lat2, lon2));
 }
@@ -119,4 +123,91 @@ int score(LDC *ldc, int printDetails) {
                taille, nbPays, nbEndangered);
     }
     return taille + 2 * nbPays + 3 * nbEndangered;
+}
+
+void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int tabSize) {
+    int i = 0; // Indice du lieu
+    int nbCult = 0;
+    int nbNat = 0;
+    int nbMixed = 0;
+    long distance = 0;
+    long deltaDist;
+    double time = 0;
+    CelluleLDC *prec = NULL;
+    printf("ITINERAIRE DE VOYAGE\n");
+    printf("%2d) Starting point - (%lf, %lf)\n", i++, homeLat, homeLong);
+#if DEBUG
+    printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
+#endif
+
+    for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+        printf("%2d) ", i++);
+        Site_affichage(cell->s);
+
+        if (strcmp(cell->s->categorie, "Cultural") == 0) {
+            nbCult++;
+        } else if (strcmp(cell->s->categorie, "Natural") == 0) {
+            nbNat++;
+        } else if (strcmp(cell->s->categorie, "Mixed") == 0) {
+            nbMixed++;
+        } else {
+            printf(" /!\\ No matching type for :");
+            Site_affichage(cell->s);
+        }
+
+        if (prec == NULL) {
+            deltaDist = tabDist[cell->s->n][tabSize - 1];
+        } else {
+            deltaDist = tabDist[prec->s->n][cell->s->n];
+        }
+        distance += deltaDist;
+        time += 6 + convCmKm(deltaDist) / VITESSE;
+        prec = cell;
+#if DEBUG
+        printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
+#endif
+    }
+    if (prec != NULL) {
+        deltaDist = tabDist[prec->s->n][tabSize - 1];
+        distance += deltaDist;
+        time += 6 + convCmKm(deltaDist) / VITESSE;
+    }
+    printf("%2d) Starting point - (%lf, %lf)\n", i, homeLat, homeLong);
+#if DEBUG
+    printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
+#endif
+
+    printf("Nombre de sites culturel :\t %2d\nNombre de sites naturel :\t %2d\nNombre de sites mixed :\t\t %2d\n",
+           nbCult,
+           nbNat, nbMixed);
+    printf("Distance parcourue :\t\t  %.2lf km\n", convCmKm(distance));
+    printf("Duree du voyage :\t\t\t  %lf heures (max = %d heures)\n", time, MAX_TIME);
+}
+
+int pathToFile(LDC *ldc, double homeLat, double homeLong) {
+    FILE *file = fopen("Tour.txt", "w");
+    Site *s;
+
+    if (file != NULL) {
+        fprintf(file, "%lf, %lf\n", homeLat, homeLong);
+
+        if (ldc != NULL) {
+            for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+                s = cell->s;
+                fprintf(file, "%lf, %lf, %s\n", s->lat, s->lon, s->categorie);
+            }
+        }
+
+        fprintf(file, "%lf, %lf\n", homeLat, homeLong);
+        fclose(file);
+    } else{
+        return 0;
+    }
+    return 1;
+}
+
+int showMap(LDC *ldc, double homeLat, double homeLong){
+    pathToFile(ldc,homeLat,homeLong);
+    const char *cmdLine = "java -jar ../UnescoMap.jar";
+    system(cmdLine);
 }
