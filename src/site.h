@@ -4,12 +4,13 @@
 /* Prototypes de Structures */
 
 typedef struct site {
-    char* nom ;
-    float LAT ;
-    float LONG ;
-    char* categorie ; //cultural,natural,mixed
-    char* pays ;
-    int enDanger ; //0,1
+    int n; // position dans le tableau initial de tous les sites
+    char *nom;
+    double lat;
+    double lon;
+    char *categorie; //cultural,natural,mixed
+    char *pays;
+    int enDanger; //0,1
 } Site;
 
 typedef struct celluleLDC {
@@ -19,25 +20,25 @@ typedef struct celluleLDC {
 } CelluleLDC;//Elem;
 
 typedef struct ldc {
-    CelluleLDC* premier;
-    CelluleLDC* dernier;
+    CelluleLDC *premier;
+    CelluleLDC *dernier;
 } LDC;
 
 /* Prototypes de fonctions */
 // -------------------------------------- //
 //                  SITE                  //
 // -------------------------------------- //
-Site* Site_construire(char* nom,float LAT,float LONG,char* categorie,char* pays,int enDanger);
+Site *Site_construire(int n, char *nom, double lat, double lon, char *categorie, char *pays, int enDanger);
 
-void Site_affichage(Site *s);
+void Site_affichage(Site *site);
 
-int Site_equals(Site *s1, Site *s2);
+int Site_equals(Site *site1, Site *site2);
 
-void Site_supprime(Site* s);
+void Site_supprime(Site *site);
 
-Site** Site_tab_init();
+Site **Site_tab_init(int *n);
 
-void Site_tab_supprime(Site** s, int n);
+void Site_tab_supprime(Site **pSite, int n);
 
 // -------------------------------------- //
 //                  LDC                   //
