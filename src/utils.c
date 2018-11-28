@@ -22,7 +22,7 @@ long calculDistanceCm(double lat1, double lon1, double lat2, double lon2) {
     return convKmCm(calculDistance(lat1, lon1, lat2, lon2));
 }
 
-long **calculToutesDistances(LDC *l, double lon, double lat, int *taille) {
+long **calculToutesDistances(LDC *l, double lat, double lon, int *taille) {
     int longueur = LDC_taille(l); // longueur de la List l
     long **dist = (long **) malloc(
             sizeof(long *) * (longueur + 1));// matrice carree diagonale des distances entre sites et origine

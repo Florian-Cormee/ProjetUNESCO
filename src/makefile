@@ -1,3 +1,12 @@
+unesco : main.o algorithm.o site.o utils.o lectureFichiers.o haversine.o
+	gcc main.o algorithm.o site.o utils.o lectureFichiers.o haversine.o -o unesco -lm
+
+main.o : main.c algorithm.h site.h utils.h
+	gcc -c main.c
+
+algorithm.o : algorithm.c algorithm.h site.h utils.h
+	gcc -c algorithm.c
+
 testh : test_haversine.o site.o haversine.o utils.o lectureFichiers.o
 	gcc test_haversine.o site.o haversine.o utils.o lectureFichiers.o -o testh -lm
 

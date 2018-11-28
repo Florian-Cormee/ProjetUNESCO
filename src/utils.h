@@ -11,6 +11,8 @@
 
 #define VITESSE 80
 #define MAX_TIME 504
+#define BEAK_TIME 6
+#define BREAK_DIST VITESSE*BREAK_TIME
 
 /* 
 Converti la distance en m en cm.
@@ -38,7 +40,7 @@ Entree:
 Sortie:
     Tableau des distances des sites en eux et avec le point de depart
 */
-long **calculToutesDistances(LDC *ldc, double lon, double lat, int *taille);
+long **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille); /* Modifier indice des sites */
 
 /*
 Affiche dans la console une matrice d'entier
