@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 #include "lectureFichiers.h"
 #include "site.h"
-#include "utils.h"
 
 Site *Site_construire(int n, char *nom, double lat, double lon, char *categorie, char *pays, int enDanger) {
     Site *site = (Site *) malloc(sizeof(Site));
@@ -78,6 +78,7 @@ Site **Site_tab_init(int *n) {
 }
 
 void Site_tab_supprime(Site **pSite, int n) {
+    if (pSite == NULL) { return; }
     for (int i = 0; i < n; i++) {
         free(*(pSite + i));
     }

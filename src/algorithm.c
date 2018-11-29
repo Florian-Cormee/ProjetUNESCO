@@ -20,11 +20,11 @@ LDC* Algo_Plus_Proche_Voisin(LDC* l,double homeLat,double homeLong,long** mat_di
             cell=cell->suiv;
         }
         s = LDC_get(l, indice_min);
-        if(*(s->categorie)=="cultural") {
+        if(s!=NULL && s->categorie=="cultural") {
             printf("plus\n");
             difference++;
         }
-        if(*(s->categorie)=="natural") {
+        if(s!=NULL && s->categorie=="natural") {
             difference--;
             printf("moins\n");
         }
