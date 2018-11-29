@@ -3,29 +3,44 @@
 #include "utils.h"
 #include "algorithm.h"
 
-/*LDC* Algo_Plus_Proche_Voisin(double LAT, double LONG, Site* s_tab, Site** s_mat, int n) {
+LDC* Algo_Plus_Proche_Voisin(LDC* l,double homeLat,double homeLong,long** mat_dist,int n) {
+    long distance_restant = MAX_TIME*VITESSE, distance_min = distance_restant, d=0;
+    int difference=0, indice = n-1, indice_min;
     LDC* ldc_chemin = LDC_nouveau();
-    LDC* ldc_portee = Algo_Champ_des_Possibles_init(LAT, LONG, s_tab, n);
-    int dif = 0;
-    double distance_restant = MAX_TIME*VITESSE, distance_min = 0.0;
     CelluleLDC* cell;
-    do {
-        cell = ldc_portee->premier;
+    Site* s;
+    while(l->premier!=NULL) {
+        cell = l->premier;
         while(cell!=NULL) {
-            // Choix du plus proche voisin
+            d = mat_dist[indice][cell->s->n];
+            if(((difference>-1 && cell->s->categorie!="cultural")||(difference<1 && cell->s->categorie!="natural"))&& d<distance_min && d!=0) {
+                indice_min = cell->s->n;
+                distance_min = d;
+            }
             cell=cell->suiv;
         }
-        ldc_portee = Algo_Champ_des_Possibles(LAT, LONG, ldc_portee, , distance_restant);
-    }while(ldc_portee->premier!=NULL);
+        s = LDC_get(l, indice_min);
+        LDC_ajoute_fin(ldc_chemin, s);
+        LDC_rm(l, s);
+        distance_restant-=(distance_min+BREAK_DIST);
+        indice = indice_min;
+        l = Algo_Champ_des_Possibles(l, mat_dist, indice, distance_restant, n);
+        if(s->categorie=="cultural") {
+            difference++;
+        }
+        if(s->categorie=="natural") {
+            difference--;
+        }
+    }
     return ldc_chemin;
-}*/
+}
 
-LDC* Algo_Champ_des_Possibles_init(double LATo, double LONGo, Site** s_tab, int n) {
+LDC* Algo_Champ_des_Possibles_init(double homeLat, double homeLong, Site** s_tab, int n) {
     LDC* ldc = LDC_nouveau();
     long R0 = convKmCm((double)(MAX_TIME-BREAK_TIME)*(VITESSE/2)); /*A modifier Dr moins Dp*/
     for(int i=0; i<n; i++)
     {
-        if(calculDistanceCm(LATo, LONGo, s_tab[i]->lat, s_tab[i]->lon)<=R0)
+        if(calculDistanceCm(homeLat, homeLong, s_tab[i]->lat, s_tab[i]->lon)<=R0)
         {
             LDC_ajoute_fin(ldc, *(s_tab+i));
         }
@@ -33,18 +48,18 @@ LDC* Algo_Champ_des_Possibles_init(double LATo, double LONGo, Site** s_tab, int 
     return ldc;
 }
 
-LDC* Algo_Champ_des_Possibles(double LATo, double LONGo, LDC* ldc, double* s_tab, double distance_restant) {
+LDC* Algo_Champ_des_Possibles(LDC* l, long** tab_dist, int ind,long distance_restant, int n) {
     LDC* ldc_cp = LDC_nouveau();
-    CelluleLDC* cell = ldc->premier;
+    CelluleLDC* cell = l->premier;
     while(cell!=NULL)
     {
-        if(s_tab[(cell->s)->n]!=0 && s_tab[(cell->s)->n]+calculDistanceCm(LATo, LONGo, (cell->s)->lat, (cell->s)->lon)<=distance_restant-BREAK_DIST)
+        if(tab_dist[ind][(cell->s)->n]!=0 && tab_dist[ind][(cell->s)->n]+tab_dist[(cell->s)->n][n-1]<=distance_restant-BREAK_DIST)
         {
             LDC_ajoute_fin(ldc_cp, cell->s);
         }
         cell=cell->suiv;
     }
-    return ldc;
+    return l;
 }
 
 
