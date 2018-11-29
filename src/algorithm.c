@@ -20,17 +20,18 @@ LDC* Algo_Plus_Proche_Voisin(LDC* l,double homeLat,double homeLong,long** mat_di
             cell=cell->suiv;
         }
         s = LDC_get(l, indice_min);
-        LDC_ajoute_fin(ldc_chemin, s);
-        LDC_rm(l, s);
-        distance_restant-=(distance_min+BREAK_DIST);
-        indice = indice_min;
-        l = Algo_Champ_des_Possibles(l, mat_dist, indice, distance_restant, n);
         if(s->categorie=="cultural") {
             difference++;
         }
         if(s->categorie=="natural") {
             difference--;
         }
+        LDC_ajoute_fin(ldc_chemin, s);
+        LDC_rm(l, s);
+        distance_restant-=(distance_min+BREAK_DIST);
+        indice = indice_min;
+        printf("%d\n", LDC_taille(l));
+        l = Algo_Champ_des_Possibles(l, mat_dist, indice, distance_restant, n);
     }
     return ldc_chemin;
 }
@@ -59,7 +60,7 @@ LDC* Algo_Champ_des_Possibles(LDC* l, long** tab_dist, int ind,long distance_res
         }
         cell=cell->suiv;
     }
-    return l;
+    return ldc_cp;
 }
 
 
