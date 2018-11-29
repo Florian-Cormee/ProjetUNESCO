@@ -1,3 +1,5 @@
+#if TEST_MODE
+
 #include <stdio.h>
 #include <time.h>
 #include "haversine.h"
@@ -8,6 +10,8 @@
 
 
 int main(void) {
+    double homeLat = 48.8504851;
+    double homeLon =2.3604233;
     clock_t tDeb = clock();
     clock_t tFin = tDeb;
 #if EXO == 1 /* Tests de l'exercice 1 */
@@ -44,15 +48,15 @@ int main(void) {
     printf("avant nom[0] = %c\n", nom[0]);
     nom[0] = 'A';
     printf("ap\n");
-    Site *s2 = Site_construire(1, "nom", -85.7, -170.6, "Natural", "Yolo", TRUE);
-    Site *s3 = Site_construire(2, nom, -85.7, -170.6, "Natural", "Yolo", TRUE);
+    Site *s2 = Site_construire(1, "nom", 48,2, "Natural", "Yolo", TRUE);
+    Site *s3 = Site_construire(2, nom, 48.1,1.9, "Natural", "Yolo", TRUE);
     Site_affichage(s1);
     Site_affichage(s2);
     LDC_ajoute_fin(l, s1);
     LDC_ajoute_fin(l, s2);
     LDC_ajoute_deb(l, s3);
 
-    dists = calculToutesDistances(l, 83.2, 165.3, &dists_taille);
+    dists = calculToutesDistances(l, homeLat,homeLon, &dists_taille);
     printf("\n");
     afficheTab(dists, dists_taille);
     LDC_affiche(l);
@@ -66,11 +70,11 @@ int main(void) {
 
     //LDC_rm(l, s1);
     //LDC_affiche(l);
-    printPath(l, 83.2, 165.3, dists, dists_taille);
+    printPath(l, homeLat, homeLon, dists, dists_taille);
     printf("Score total : %4d pts !\n",
            score(l, 1));
 
-    showMap(l, 83.2, 165.3);
+    showMap(l, homeLat, homeLon);
 
     freeTab(dists, dists_taille);
     LDC_free(&l, TRUE);
@@ -79,3 +83,4 @@ int main(void) {
     printf("Duree d'execution : %lf s", (double) (tDeb - tFin) / CLOCKS_PER_SEC);
     return 0; // on passe tous les tests
 }
+#endif

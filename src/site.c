@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 #include "lectureFichiers.h"
 #include "site.h"
-#include "utils.h"
 
 Site *Site_construire(int n, char *nom, double lat, double lon, char *categorie, char *pays, int enDanger) {
     Site *site = (Site *) malloc(sizeof(Site));
@@ -44,7 +44,9 @@ void Site_supprime(Site *site) {
 Site **Site_tab_init(int *n) {
     // Mesure du nombre de sites dans le fichier : unesco.csv
     FILE *fid = fopen("unesco.csv", "r");
+#if DEBUG
     printf("fid == NULL ? %d\n", fid == NULL);
+#endif
     *n = 0;
     if (fid != NULL) {// si le fichier existe
         while (!feof(fid)) {// tant qu'on n'a pas atteint la fin du fichier
@@ -54,7 +56,9 @@ Site **Site_tab_init(int *n) {
         fclose(fid);
     }
     (*n) -= 2;// On ne compte pas la 1ere ligne ni la derniere qui est vide
+#if DEBUG
     printf("Il y a %d element(s)\n", *n);
+#endif
 
     // Chargement des sites
     fid = fopen("unesco.csv", "r");
@@ -74,7 +78,9 @@ Site **Site_tab_init(int *n) {
             GetChaine(fid, 512, continents);
             EnDanger = GetEntier(fid);
             site[i] = Site_construire(i, nom, LAT, LONG, categorie, pays, EnDanger);
+#if DEBUG
             Site_affichage(site[i]);
+#endif
         }
         fclose(fid);
     }
@@ -82,6 +88,7 @@ Site **Site_tab_init(int *n) {
 }
 
 void Site_tab_supprime(Site **pSite, int n) {
+    if (pSite == NULL) { return; }
     for (int i = 0; i < n; i++) {
         free(*(pSite + i));
     }

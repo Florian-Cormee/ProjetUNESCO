@@ -23,6 +23,11 @@ long calculDistanceCm(double lat1, double lon1, double lat2, double lon2) {
 }
 
 long **calculToutesDistances(LDC *l, double lon, double lat, int *taille) {
+    if (taille == NULL) { return NULL; }
+    if (l == NULL) {
+        *taille = 0;
+        return NULL;
+    }
     int longueur = LDC_taille(l); // longueur de la List l
     long **dist = (long **) malloc(
             sizeof(long *) * (longueur + 1));// matrice carree diagonale des distances entre sites et origine
@@ -74,6 +79,7 @@ void afficheTab(long **tab, int taille) {
 }
 
 void freeTab(long **tab, int taille) {
+    if (tab == NULL) { return; }
     for (int i = 0; i < taille; i++) {
         free(*(tab + i));
     }
@@ -85,6 +91,7 @@ long dist(long **tabDist, Site *site1, Site *site2) {
 }
 
 int score(LDC *ldc, int printDetails) {
+    if (ldc == NULL) { return ERROR; }
     int taille = LDC_taille(ldc);//taille & nombre de destinations
     char *pays[taille];//tableau des pays visites
     int nbPays = 0; // nombre de pays visites differents
@@ -126,6 +133,7 @@ int score(LDC *ldc, int printDetails) {
 }
 
 void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int tabSize) {
+    if (ldc == NULL || tabDist == NULL) { return; }
     int i = 0; // Indice du lieu
     int nbCult = 0;
     int nbNat = 0;
@@ -185,11 +193,11 @@ void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int ta
 }
 
 int pathToFile(LDC *ldc, double homeLat, double homeLong) {
-    FILE *file = fopen("Tour.txt", "w");
+    FILE *file = fopen("../Tour.txt", "w");
     Site *s;
 
     if (file != NULL) {
-        fprintf(file, "%lf, %lf\n", homeLat, homeLong);
+        fprintf(file, "%lf, %lf, \n", homeLat, homeLong);
 
         if (ldc != NULL) {
             for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
@@ -198,16 +206,16 @@ int pathToFile(LDC *ldc, double homeLat, double homeLong) {
             }
         }
 
-        fprintf(file, "%lf, %lf\n", homeLat, homeLong);
+        fprintf(file, "%lf, %lf, \n", homeLat, homeLong);
         fclose(file);
-    } else{
+    } else {
         return 0;
     }
     return 1;
 }
 
-int showMap(LDC *ldc, double homeLat, double homeLong){
-    pathToFile(ldc,homeLat,homeLong);
-    const char *cmdLine = "java -jar ../UnescoMap.jar";
-    system(cmdLine);
+int showMap(LDC *ldc, double homeLat, double homeLong) {
+    if (ldc == NULL) { return 0; }
+    pathToFile(ldc, homeLat, homeLong);
+    return system("java -jar ../UnescoMap.jar");
 }
