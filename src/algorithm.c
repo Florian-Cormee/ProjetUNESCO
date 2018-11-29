@@ -14,23 +14,24 @@ LDC* Algo_Plus_Proche_Voisin(LDC* l,double homeLat,double homeLong,long** mat_di
         while(cell!=NULL) {
             d = mat_dist[indice][cell->s->n];
             if(((difference>-1 && cell->s->categorie!="cultural")||(difference<1 && cell->s->categorie!="natural"))&& d<distance_min && d!=0) {
-                indice_min = cell->s->n;
+                indice_min = LDC_trouve(l, cell->s);
                 distance_min = d;
             }
             cell=cell->suiv;
         }
         s = LDC_get(l, indice_min);
-        if(s->categorie=="cultural") {
+        if(*(s->categorie)=="cultural") {
+            printf("plus\n");
             difference++;
         }
-        if(s->categorie=="natural") {
+        if(*(s->categorie)=="natural") {
             difference--;
+            printf("moins\n");
         }
         LDC_ajoute_fin(ldc_chemin, s);
+        indice = s->n;
         LDC_rm(l, s);
         distance_restant-=(distance_min+BREAK_DIST);
-        indice = indice_min;
-        printf("%d\n", LDC_taille(l));
         l = Algo_Champ_des_Possibles(l, mat_dist, indice, distance_restant, n);
     }
     return ldc_chemin;
