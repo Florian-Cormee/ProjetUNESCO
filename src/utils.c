@@ -44,8 +44,10 @@ long **calculToutesDistances(LDC *l, double lat, double lon, int *taille) {
 
     for (CelluleLDC *courant1 = l->premier; courant1 != NULL; courant1 = courant1->suiv) {//iteration sur la liste
         j = 0;
+        //courant1->s->n = i;
         for (CelluleLDC *courant2 = l->premier; courant2 != NULL; courant2 = courant2->suiv) {
             if (dist[i][j] == -1) {//on a pas calcule la distance
+                //courant2->s->n = j;
                 if (courant1 == courant2) {//on veut connaitre la distance entre deux points identiques
                     distance = 0;
                 } else {

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "utils.h"
 #include "site.h"
+#include "algorithm.h"
 
 #define TEST_MODE 0
 
@@ -14,6 +15,7 @@ int main(int argc, char *argv[]) {
     long **distTab = NULL;
     int distTabLength = 0;
     LDC *siteLDC = NULL;
+    int indice = 0;
 
     if (argc != 3) {
         printf("Il ne faut que les coordonnées du point de départ.\nUsage :\t./unesco <latitude> <longitude>\n");
@@ -33,9 +35,11 @@ int main(int argc, char *argv[]) {
     distTab = calculToutesDistances(siteLDC, homeLat, homeLon, &distTabLength);
     printf("Fini..\n");
 
-    /*
-     * Inserer ici le code pour le calcul de l'itineraire.
-     */
+    printf("Welcome to the Unesco travel challenge!\nChoose the algorithm : ");
+    scanf("%d", &indice);
+    if(indice==1) {
+        siteLDC = Algo_Plus_Proche_Voisin(siteLDC, homeLat, homeLon, distTab, distTabLength);
+    }
 
     printPath(siteLDC, homeLat, homeLon, distTab, distTabLength);
     printf("Score total : %4d pts !\n", score(siteLDC, 1));
