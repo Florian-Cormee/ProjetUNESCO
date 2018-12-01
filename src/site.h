@@ -61,4 +61,5 @@ void LDC_rm(LDC *ldc, Site *site);
 
 void LDC_free(LDC **ldc, int freeSite);
 
+int LDC_empty(LDC *ldc);
 #endif

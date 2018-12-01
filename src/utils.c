@@ -171,7 +171,7 @@ void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int ta
             deltaDist = tabDist[prec->s->n][cell->s->n];
         }
         distance += deltaDist;
-        time += 6 + convCmKm(deltaDist) / VITESSE;
+        time += BREAK_TIME + convCmKm(deltaDist) / VITESSE;
         prec = cell;
 #if DEBUG
         printf("\tdist = %ld\n\ttime = %lf\n", distance, time);

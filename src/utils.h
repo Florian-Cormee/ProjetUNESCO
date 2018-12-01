@@ -9,10 +9,10 @@
 #define FALSE (0)
 #define ERROR (-1)
 
-#define VITESSE 80
-#define MAX_TIME 504
-#define BEAK_TIME 6
-#define BREAK_DIST VITESSE*BREAK_TIME
+#define VITESSE (80)
+#define MAX_TIME (504)
+#define BREAK_TIME (6)
+#define BREAK_DIST (VITESSE * BREAK_TIME * 100)
 
 /* 
 Converti la distance en m en cm.
