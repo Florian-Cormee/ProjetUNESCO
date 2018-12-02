@@ -2,6 +2,7 @@
 #include "algorithm.h"
 #include "utils.h"
 #include "site.h"
+#include "algorithm.h"
 
 #define TEST_MODE 0
 
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) {
     long **distTab = NULL;
     int distTabLength = 0;
     LDC *siteLDC = NULL;
+    LDC *itineraire = NULL;
 
     if (argc != 3) {
         printf("Il ne faut que les coordonnées du point de départ.\nUsage :\t./unesco <latitude> <longitude>\n");
@@ -31,25 +33,31 @@ int main(int argc, char *argv[]) {
     siteTab = Site_tab_init(&siteTabLength);
     printf("%d sites chargees..\n", siteTabLength);
 
+    siteLDC = Algo_Champ_des_Possibles_init(homeLat, homeLon, siteTab, siteTabLength);
+
     printf("Calcul des distances entre sites..");
     siteLDC = Algo_Champ_des_Possibles_init(homeLat, homeLon,siteTab, siteTabLength);
     distTab = calculToutesDistances(siteLDC, homeLat, homeLon, &distTabLength);
     printf("Fini..\n");
+
+
     printf("Welcome to the Unesco travel challenge!\nChoose the algorithm : ");
-    scanf("%d", &indice);
-    if(indice==1) {
-        siteLDC = Algo_Plus_Proche_Voisin(siteLDC, homeLat, homeLon, distTab, distTabLength);
-    }
+    //scanf("%d", &indice);
+    //if (indice == 1) {
+    itineraire = Algo_itineraire(&siteLDC, distTab, distTabLength);
+    //}
 
-    printPath(siteLDC, homeLat, homeLon, distTab, distTabLength);
-    printf("Score total : %4d pts !\n", score(siteLDC, 1));
+    printPath(itineraire, homeLat, homeLon, distTab, distTabLength);
+    printf("Score total : %4d pts !\n", score(itineraire, 1));
 
-    showMap(siteLDC, homeLat, homeLon);
+    printf("Writing path to file\n");
+    showMap(itineraire, homeLat, homeLon);
 
     printf("Liberation de la memoire..");
-    Site_tab_supprime(siteTab, siteTabLength);
+    LDC_free(&siteLDC, 0);
+    LDC_free(&itineraire, 0);
     freeTab(distTab, distTabLength);
-    LDC_free(&siteLDC, 1);
+    Site_tab_supprime(siteTab, siteTabLength);
     printf("Fini\nFin du programme.\n");
 
     return 0;

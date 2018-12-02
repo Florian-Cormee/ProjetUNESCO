@@ -170,6 +170,7 @@ Site *LDC_get(LDC *ldc, int i) {
     CelluleLDC *courant = ldc->premier;
 
     for (int index = 0; index < i && courant != NULL; index++) {
+        printf("ldc.get(%3d) = %p\n", index, courant->s);
         courant = courant->suiv;
     }
 
@@ -218,5 +219,13 @@ void LDC_free(LDC **ldc, int freeSite) {
         }
         free(cell);
     }
+    free(*ldc);
     *ldc = NULL;
+}
+
+int LDC_empty(LDC *ldc) {
+    if (ldc == NULL) {
+        return 1;
+    }
+    return ldc->premier == NULL ? 1 : 0;
 }
