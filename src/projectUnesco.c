@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "algorithm.h"
 #include "utils.h"
 #include "site.h"
 
@@ -9,6 +10,7 @@
 int main(int argc, char *argv[]) {
     double homeLat = 0;
     double homeLon = 0;
+    int indice = 0;
     Site **siteTab = NULL;
     int siteTabLength = 0;
     long **distTab = NULL;
@@ -30,12 +32,14 @@ int main(int argc, char *argv[]) {
     printf("%d sites chargees..\n", siteTabLength);
 
     printf("Calcul des distances entre sites..");
+    siteLDC = Algo_Champ_des_Possibles_init(homeLat, homeLon,siteTab, siteTabLength);
     distTab = calculToutesDistances(siteLDC, homeLat, homeLon, &distTabLength);
     printf("Fini..\n");
-
-    /*
-     * Inserer ici le code pour le calcul de l'itineraire.
-     */
+    printf("Welcome to the Unesco travel challenge!\nChoose the algorithm : ");
+    scanf("%d", &indice);
+    if(indice==1) {
+        siteLDC = Algo_Plus_Proche_Voisin(siteLDC, homeLat, homeLon, distTab, distTabLength);
+    }
 
     printPath(siteLDC, homeLat, homeLon, distTab, distTabLength);
     printf("Score total : %4d pts !\n", score(siteLDC, 1));

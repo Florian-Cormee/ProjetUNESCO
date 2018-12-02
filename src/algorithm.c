@@ -1,11 +1,18 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #include "utils.h"
 #include "algorithm.h"
 
 LDC* Algo_Plus_Proche_Voisin(LDC* l,double homeLat,double homeLong,long** mat_dist,int n) {
-    long distance_restant = MAX_TIME*VITESSE, distance_min = distance_restant, d=0;
-    int difference=0, indice = n-1, indice_min;
+    long distance_restant = MAX_TIME*VITESSE;
+    long distance_min = distance_restant;
+    long d=0;
+    int difference=0;
+    int indice = n-1;
+    int indice_min = indice;
+    int dc;
+    int dn;
     LDC* ldc_chemin = LDC_nouveau();
     CelluleLDC* cell;
     Site* s;
@@ -13,23 +20,28 @@ LDC* Algo_Plus_Proche_Voisin(LDC* l,double homeLat,double homeLong,long** mat_di
         cell = l->premier;
         while(cell!=NULL) {
             d = mat_dist[indice][cell->s->n];
-            if(((difference>-1 && cell->s->categorie!="cultural")||(difference<1 && cell->s->categorie!="natural"))&& d<distance_min && d!=0) {
+            dc = strcmp(cell->s->categorie,"Cultural");
+            dn = strcmp(cell->s->categorie,"Natural");
+            if(((difference>-1 && dc!=0)||(difference<1 && dn!=0))&& d<distance_min && d!=0) {
                 indice_min = LDC_trouve(l, cell->s);
                 distance_min = d;
             }
             cell=cell->suiv;
         }
         s = LDC_get(l, indice_min);
-        if(s->categorie=="cultural") {
+        printf("coucou\n");
+        if(!strcmp(s->categorie,"Cultural")) {
             printf("plus\n");
             difference++;
         }
-        if(s->categorie=="natural") {
+        if(!strcmp(s->categorie,"Natural")) {
             difference--;
             printf("moins\n");
         }
+        printf("test2\n");
         LDC_ajoute_fin(ldc_chemin, s);
         indice = s->n;
+        printf("%d\n",LDC_taille(l));
         LDC_rm(l, s);
         distance_restant-=(distance_min+BREAK_DIST);
         l = Algo_Champ_des_Possibles(l, mat_dist, indice, distance_restant, n);

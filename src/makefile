@@ -1,8 +1,8 @@
-unesco : main.o algorithm.o site.o utils.o lectureFichiers.o haversine.o
-	gcc main.o algorithm.o site.o utils.o lectureFichiers.o haversine.o -o unesco -lm
+unesco : projectUnesco.o algorithm.o site.o utils.o lectureFichiers.o haversine.o
+	gcc projectUnesco.o algorithm.o site.o utils.o lectureFichiers.o haversine.o -o unesco -lm
 
-main.o : main.c algorithm.h site.h utils.h
-	gcc -c main.c
+projectUnesco.o : projectUnesco.c algorithm.h site.h utils.h
+	gcc -c projectUnesco.c
 
 algorithm.o : algorithm.c algorithm.h site.h utils.h
 	gcc -c algorithm.c
