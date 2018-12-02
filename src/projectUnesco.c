@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     double homeLon = 0;
     Site **siteTab = NULL;
     int siteTabLength = 0;
-    long **distTab = NULL;
+    double **distTab = NULL;
     int distTabLength = 0;
     LDC *siteLDC = NULL;
     LDC *itineraire = NULL;
@@ -43,7 +43,9 @@ int main(int argc, char *argv[]) {
     //if (indice == 1) {
     itineraire = Algo_itineraire(&siteLDC, distTab, distTabLength);
     //}
-
+    /*LDC_affiche(siteLDC);
+    LDC_popBack(siteLDC);
+    LDC_affiche(siteLDC);*/
     printPath(itineraire, homeLat, homeLon, distTab, distTabLength);
     printf("Score total : %4d pts !\n", score(itineraire, 1));
 

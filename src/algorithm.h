@@ -11,7 +11,7 @@
     Prend en Parametre la latitude (double LAT) et la longitude (double LONG) de la position de depart
     Retourne Une liste doublement chainée (LDC) avec toute les positions intermédiaires
 */
-LDC *Algo_Plus_Proche_Voisin(LDC *l, double homeLat, double homeLong, long **mat_dist, int n);
+LDC *Algo_Plus_Proche_Voisin(LDC *l, double homeLat, double homeLong, double **mat_dist, int n);
 
 
 /* Algorithme du "champs des possibles" initiale
@@ -20,12 +20,13 @@ LDC *Algo_Plus_Proche_Voisin(LDC *l, double homeLat, double homeLong, long **mat
 */
 LDC *Algo_Champ_des_Possibles_init(double homeLat, double homeLong, Site **s_tab, int n);
 
-LDC *Algo_Champ_des_Possibles(LDC *l, long **tab_dist, int ind, long distance_restant, int n);
+LDC *Algo_Champ_des_Possibles(LDC *l, double **tab_dist, int ind, double distance_restant, int n);
 
-LDC *Algo_itineraire(LDC **ldc, long **tabDist, int tabDistLength);
+LDC *Algo_itineraire(LDC **ldc, double **tabDist, int tabDistLength);
 
-long Algo_score(long **tabDist, int tabDistLength, int difference, Site *potentialSite, long portee, Site *currentSite);
+double
+Algo_score(double **tabDist, int tabDistLength, int difference, Site *potentialSite, double portee, Site *currentSite);
 
-long Algo_2opt(LDC *itineraire, long **tabDist, int tabDistLength);
+double Algo_2opt(LDC *itineraire, double **tabDist, int tabDistLength);
 
 #endif
