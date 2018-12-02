@@ -5,60 +5,45 @@
 #include "site.h"
 #include "haversine.h"
 
-long convKmCm(double d) {
-    double nombre = d * 100;
-    int dm = (int) nombre;
-    if ((nombre - dm) > .5) {
-        dm++;
-    }
-    return dm;
-}
-
-double convCmKm(long d) {
-    return (double) d / 100;
-}
-
-long calculDistanceCm(double lat1, double lon1, double lat2, double lon2) {
-    return convKmCm(calculDistance(lat1, lon1, lat2, lon2));
-}
-
-long **calculToutesDistances(LDC *l, double lon, double lat, int *taille) {
+double **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille) {
     if (taille == NULL) { return NULL; }
-    if (l == NULL) {
+    if (ldc == NULL) {
         *taille = 0;
         return NULL;
     }
-    int longueur = LDC_taille(l); // longueur de la List l
-    long **dist = (long **) malloc(
-            sizeof(long *) * (longueur + 1));// matrice carree diagonale des distances entre sites et origine
+    int longueur = LDC_taille(ldc); // longueur de la List ldc
+    /* matrice carree diagonale des distances entre sites et origine */
+    double **dist = (double **) malloc(sizeof(double *) * (longueur + 1));
     int i = 0; // index de l'iteration mere
     int j = 0; // index de la sous iteration
-    long distance; // distance en cm entre deux lieux (sites ou origine)
+    double distance; // distance en cm entre deux lieux (sites ou origine)
 
     *taille = longueur + 1; // on indique la taille du tableau renvoye
     for (int i0 = 0; i0 < *taille; ++i0) {
-        dist[i0] = (long *) malloc(sizeof(long) * (*taille));//on creer les lignes
+        dist[i0] = (double *) malloc(sizeof(double) * (*taille));//on creer les lignes
         for (int j0 = 0;
              j0 < longueur + 1; ++j0) { dist[i0][j0] = -1; }//on l'initialise avec une valeur par defaut de -1
     }
 
-    for (CelluleLDC *courant1 = l->premier; courant1 != NULL; courant1 = courant1->suiv) {//iteration sur la liste
+    for (CelluleLDC *courant1 = ldc->premier; courant1 != NULL; courant1 = courant1->suiv) {//iteration sur la liste
         j = 0;
-        for (CelluleLDC *courant2 = l->premier; courant2 != NULL; courant2 = courant2->suiv) {
+        //courant1->s->n = i;
+        for (CelluleLDC *courant2 = ldc->premier; courant2 != NULL; courant2 = courant2->suiv) {
             if (dist[i][j] == -1) {//on a pas calcule la distance
+                //courant2->s->n = j;
                 if (courant1 == courant2) {//on veut connaitre la distance entre deux points identiques
                     distance = 0;
                 } else {
-                    distance = calculDistanceCm((courant1->s)->lat, (courant1->s)->lon, (courant2->s)->lat,
-                                                (courant2->s)->lon);//distance entre lieux
+                    distance = calculDistance((courant1->s)->lat, (courant1->s)->lon, (courant2->s)->lat,
+                                              (courant2->s)->lon);//distance entre lieux
                 }
                 dist[i][j] = distance;
                 dist[j][i] = distance;//comme la distance est commutative on evite de recalculer la meme distance
             }
             j++;
         }
-        distance = calculDistanceCm((courant1->s)->lat, (courant1->s)->lon, lat,
-                                    lon);//distance entre un lieu et le depart
+        distance = calculDistance((courant1->s)->lat, (courant1->s)->lon, lat,
+                                  lon);//distance entre un lieu et le depart
         dist[i][j] = distance;// conversion en cm
         dist[j][i] = distance;//comme la distance est commutative on evite de recalculer la meme distance
         i++;
@@ -68,17 +53,17 @@ long **calculToutesDistances(LDC *l, double lon, double lat, int *taille) {
     return dist;
 }
 
-void afficheTab(long **tab, int taille) {
+void afficheTab(double **tab, int taille) {
     for (int i = 0; i < taille; i++) {
         printf("|");
         for (int j = 0; j < taille; j++) {
-            printf("%10ld|", tab[i][j]);
+            printf("%10.2lf|", tab[i][j]);
         }
         printf("\n");
     }
 }
 
-void freeTab(long **tab, int taille) {
+void freeTab(double **tab, int taille) {
     if (tab == NULL) { return; }
     for (int i = 0; i < taille; i++) {
         free(*(tab + i));
@@ -132,21 +117,21 @@ int score(LDC *ldc, int printDetails) {
     return taille + 2 * nbPays + 3 * nbEndangered;
 }
 
-void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int tabSize) {
+void printPath(LDC *ldc, double homeLat, double homeLong, double **tabDist, int tabSize) {
     if (ldc == NULL || tabDist == NULL) { return; }
     int i = 0; // Indice du lieu
     int nbCult = 0;
     int nbNat = 0;
     int nbMixed = 0;
-    long distance = 0;
-    long deltaDist;
+    double distance = 0;
+    double deltaDist = 0;
     double time = 0;
     CelluleLDC *prec = NULL;
     printf("ITINERAIRE DE VOYAGE\n");
     printf("%2d) Starting point - (%lf, %lf)\n", i++, homeLat, homeLong);
-#if DEBUG
+    #if DEBUG
     printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
-#endif
+    #endif
 
     for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
         printf("%2d) ", i++);
@@ -169,26 +154,25 @@ void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int ta
             deltaDist = tabDist[prec->s->n][cell->s->n];
         }
         distance += deltaDist;
-        time += 6 + convCmKm(deltaDist) / VITESSE;
+        time += BREAK_TIME + deltaDist / VITESSE;
         prec = cell;
-#if DEBUG
+        #if DEBUG
         printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
-#endif
+        #endif
     }
     if (prec != NULL) {
         deltaDist = tabDist[prec->s->n][tabSize - 1];
         distance += deltaDist;
-        time += 6 + convCmKm(deltaDist) / VITESSE;
+        time += 6 + deltaDist / VITESSE;
     }
     printf("%2d) Starting point - (%lf, %lf)\n", i, homeLat, homeLong);
-#if DEBUG
+    #if DEBUG
     printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
-#endif
+    #endif
 
     printf("Nombre de sites culturel :\t %2d\nNombre de sites naturel :\t %2d\nNombre de sites mixed :\t\t %2d\n",
-           nbCult,
-           nbNat, nbMixed);
-    printf("Distance parcourue :\t\t  %.2lf km\n", convCmKm(distance));
+           nbCult, nbNat, nbMixed);
+    printf("Distance parcourue :\t\t  %.2lf km\n", distance);
     printf("Duree du voyage :\t\t\t  %lf heures (max = %d heures)\n", time, MAX_TIME);
 }
 

@@ -8,11 +8,11 @@
 Site *Site_construire(int n, char *nom, double lat, double lon, char *categorie, char *pays, int enDanger) {
     Site *site = (Site *) malloc(sizeof(Site));
     site->n = n;
-    site->nom = strdup(nom);
+    site->nom = nom == NULL ? NULL : strdup(nom);
     site->lat = lat;
     site->lon = lon;
-    site->categorie = strdup(categorie);
-    site->pays = strdup(pays);
+    site->categorie = categorie == NULL ? NULL : strdup(categorie);
+    site->pays = pays == NULL ? NULL : strdup(pays);
     site->enDanger = enDanger;
     return site;
 }
@@ -44,9 +44,6 @@ void Site_supprime(Site *site) {
 Site **Site_tab_init(int *n) {
     // Mesure du nombre de sites dans le fichier : unesco.csv
     FILE *fid = fopen("unesco.csv", "r");
-#if DEBUG
-    printf("fid == NULL ? %d\n", fid == NULL);
-#endif
     *n = 0;
     if (fid != NULL) {// si le fichier existe
         while (!feof(fid)) {// tant qu'on n'a pas atteint la fin du fichier
@@ -56,10 +53,6 @@ Site **Site_tab_init(int *n) {
         fclose(fid);
     }
     (*n) -= 2;// On ne compte pas la 1ere ligne ni la derniere qui est vide
-#if DEBUG
-    printf("Il y a %d element(s)\n", *n);
-#endif
-
     // Chargement des sites
     fid = fopen("unesco.csv", "r");
     Site **site = (Site **) malloc(sizeof(Site) * (*n));// tableau de tous les sites
@@ -78,9 +71,6 @@ Site **Site_tab_init(int *n) {
             GetChaine(fid, 512, continents);
             EnDanger = GetEntier(fid);
             site[i] = Site_construire(i, nom, LAT, LONG, categorie, pays, EnDanger);
-#if DEBUG
-            Site_affichage(site[i]);
-#endif
         }
         fclose(fid);
     }
@@ -180,6 +170,7 @@ Site *LDC_get(LDC *ldc, int i) {
     CelluleLDC *courant = ldc->premier;
 
     for (int index = 0; index < i && courant != NULL; index++) {
+        printf("ldc.get(%3d) = %p\n", index, courant->s);
         courant = courant->suiv;
     }
 
@@ -228,5 +219,13 @@ void LDC_free(LDC **ldc, int freeSite) {
         }
         free(cell);
     }
+    free(*ldc);
     *ldc = NULL;
+}
+
+int LDC_empty(LDC *ldc) {
+    if (ldc == NULL) {
+        return 1;
+    }
+    return ldc->premier == NULL ? 1 : 0;
 }
