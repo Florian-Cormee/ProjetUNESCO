@@ -134,6 +134,18 @@ int score(LDC *ldc, int printDetails) {
     return taille + 2 * nbPays + 3 * nbEndangered;
 }
 
+int difference(LDC *ldc) {
+    int difference = 0;
+    for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+        if (strcmp(cell->s->categorie, "Cultural") == 0) {
+            difference++;
+        } else if (strcmp(cell->s->categorie, "Natural") == 0) {
+            difference--;
+        }
+    }
+    return difference;
+}
+
 void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int tabSize) {
     if (ldc == NULL || tabDist == NULL) { return; }
     int i = 0; // Indice du lieu
@@ -195,7 +207,7 @@ void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int ta
 }
 
 int pathToFile(LDC *ldc, double homeLat, double homeLong) {
-    FILE *file = fopen("../Tour.txt", "w");
+    FILE *file = fopen("Tour.txt", "w");
     Site *s;
 
     if (file != NULL) {

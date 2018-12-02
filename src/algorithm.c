@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <math.h>
 #include "utils.h"
 #include "algorithm.h"
 #include "limits.h"
@@ -20,6 +22,7 @@ LDC *Algo_Plus_Proche_Voisin(LDC *l, double homeLat, double homeLong, long **mat
     LDC *ldc_chemin = LDC_nouveau();// itineraire
     CelluleLDC *cell = NULL; // cellule courante
     Site *s = NULL; // site a visiter
+
     /* Recherche du site le plus proche */
     while (l->premier != NULL) { // tant qu'il y a des sites visitables
         distance_min = distance_restant;
@@ -59,7 +62,7 @@ LDC *Algo_Plus_Proche_Voisin(LDC *l, double homeLat, double homeLong, long **mat
             LDC_rm(l, s);// on retire le site de la liste des destinations possibles
             distance_restant -= distance_min + BREAK_DIST;// calcul de la nouvelle distance restante
         }
-        l = Algo_Champ_des_Possibles(l, mat_dist, indice, distance_restant, n);// recalcul des sites visitable possibles
+        l = Algo_Champ_des_Possibles(l, mat_dist, indice, n-1, distance_restant, n);// recalcul des sites visitable possibles
     }
     return ldc_chemin;
 }
@@ -70,9 +73,7 @@ LDC *Algo_Champ_des_Possibles_init(double homeLat, double homeLong, Site **s_tab
         return NULL;
     }
     LDC *ldc = LDC_nouveau();// liste des sites a porte
-    long R0 = convKmCm((double) (MAX_TIME - BREAK_TIME) * (VITESSE / 2)); /*A modifier Dr moins Dp*/
-    // porte initiale
-
+    long R0 = convKmCm((double) (MAX_TIME - BREAK_TIME) * (VITESSE / 2)); // porte initiale
     for (int i = 0; i < n; i++) {
         if (s_tab[i] != NULL && calculDistanceCm(homeLat, homeLong, s_tab[i]->lat, s_tab[i]->lon) <= R0) {
             LDC_ajoute_fin(ldc, s_tab[i]);
@@ -81,23 +82,21 @@ LDC *Algo_Champ_des_Possibles_init(double homeLat, double homeLong, Site **s_tab
     return ldc;
 }
 
-LDC *Algo_Champ_des_Possibles(LDC *l, long **tab_dist, int ind, long distance_restant, int n) {
+LDC *Algo_Champ_des_Possibles(LDC *l, long **tab_dist, int ind_d, int ind_a, long distance_restant, int n) {
     if (l == NULL || tab_dist == NULL) {
         printf("ERREUR - Algo_Champ_des_Possibles\n\tl = %p et tab_dist = %p\n", l, tab_dist);
         return NULL;
     }
-    LDC *ldc_cp = LDC_nouveau();// liste des sites a porte
+    LDC* ldc_cp = LDC_nouveau();// liste des sites a porte
     Site *s = NULL; // valeur de cell
 
     for (CelluleLDC *cell = l->premier; cell != NULL; cell = cell->suiv) {
         s = cell->s;
-        if (s != NULL && (ind != s->n) &&
-            (tab_dist[ind][s->n] + tab_dist[s->n][n - 1] + (2 * BREAK_DIST) <= distance_restant)) {
+        if (s != NULL && (ind_d != s->n) &&
+            (tab_dist[ind_d][s->n] + tab_dist[s->n][ind_a] + BREAK_DIST <= distance_restant)) {
             LDC_ajoute_fin(ldc_cp, s);
         }
-
     }
-
     return ldc_cp;
 }
 
@@ -123,6 +122,7 @@ long Algo_score(long **tabDist, int tabDistLength, int difference, Site *potenti
 }
 
 LDC *Algo_itineraire(LDC **sitesVisitables, long **tabDist, int tabDistLength) {
+/* Verification de la liste ainsi que du tableau des distances */
     if (sitesVisitables == NULL || *sitesVisitables == NULL) {
         printf("ldc est NULL");
         return NULL;
@@ -131,6 +131,7 @@ LDC *Algo_itineraire(LDC **sitesVisitables, long **tabDist, int tabDistLength) {
         printf("tabDist est NULL");
         return NULL;
     }
+/* Initialisation variable */
     LDC *itineraire = LDC_nouveau();
     LDC *temp = NULL;
     Site *siteMin = NULL; // site possedant le score minimum
@@ -139,7 +140,7 @@ LDC *Algo_itineraire(LDC **sitesVisitables, long **tabDist, int tabDistLength) {
     long portee = MAX_TIME * VITESSE * 100;
     long length = 0;
     int difference = 0;
-
+/* Debut de l'Algorithme */
     while (!LDC_empty(*sitesVisitables)) {
         siteMin = NULL;
         for (CelluleLDC *cell = (*sitesVisitables)->premier; cell != NULL; cell = cell->suiv) {
@@ -170,7 +171,7 @@ LDC *Algo_itineraire(LDC **sitesVisitables, long **tabDist, int tabDistLength) {
             portee = MAX_TIME * VITESSE * 100 - length;
         }
         temp = (*sitesVisitables);
-        *sitesVisitables = Algo_Champ_des_Possibles(*sitesVisitables, tabDist, siteMin->n, portee, tabDistLength);
+        *sitesVisitables = Algo_Champ_des_Possibles(*sitesVisitables, tabDist, siteMin->n, tabDistLength-1, portee, tabDistLength);
         LDC_free(&temp, 0);
     }
     return itineraire;
@@ -183,7 +184,6 @@ long Algo_2opt(LDC *itineraire, long **tabDist, int tabDistLength) {
     Site *site2 = NULL;
     Site *suivSite2 = NULL;
     long length = 0;
-
     if (itineraire == NULL || tabDist == NULL) {
         return ERROR;
     }
@@ -196,11 +196,10 @@ long Algo_2opt(LDC *itineraire, long **tabDist, int tabDistLength) {
                 if (site1->n - 1 <= site2->n && site2->n <= site1->n + 1) {
                     continue;
                 }
-
                 if (cell1->suiv != NULL && cell2->suiv != NULL && cell1->suiv->s != NULL && cell2->suiv->s != NULL &&
                     tabDist[site1->n][cell1->suiv->s->n] + tabDist[site2->n][cell2->suiv->s->n] >
                     tabDist[site1->n][site2->n] + tabDist[cell1->suiv->s->n][cell2->suiv->s->n]) {
-                    printf("\tOptimisation!\n");
+                    //printf("\tOptimisation!\n");
                     suivSite1 = cell1->suiv->s;
                     suivSite2 = cell2->suiv->s;
                     cell1->suiv->s = site2;
@@ -211,8 +210,6 @@ long Algo_2opt(LDC *itineraire, long **tabDist, int tabDistLength) {
             }
         }
     }
-
-
     for (CelluleLDC *cell = itineraire->premier; cell != NULL; cell = cell->suiv) {
         if (cell->prec == NULL) {
             length += tabDist[cell->s->n][tabDistLength - 1];
@@ -224,4 +221,49 @@ long Algo_2opt(LDC *itineraire, long **tabDist, int tabDistLength) {
     return length;
 }
 
+LDC *Algo_Rand(LDC *ldc, long **tabDist, int tabDistLength) {
+    LDC *ldc_rand;
+    LDC *ldc_cp;
+    int taille;
+    int indice_prev;
+    long distance_restant;
+    Site *s;
+    do {
+    taille = LDC_taille(ldc);
+    ldc_cp = ldc;
+    ldc_rand = LDC_nouveau();
+    distance_restant = MAX_TIME*VITESSE*100;
+    indice_prev = tabDistLength-1;
+        while(taille>0)
+        {
+            s = LDC_get(ldc_cp, rand()%taille);
+            LDC_ajoute_fin(ldc_rand, s);
+            LDC_rm(ldc_cp, s);
+            distance_restant-= tabDist[s->n][indice_prev]+BREAK_DIST;
+            indice_prev = s->n;
+            ldc_cp = Algo_Champ_des_Possibles(ldc_cp, tabDist, indice_prev, tabDistLength-1, distance_restant, tabDistLength);
+            taille = LDC_taille(ldc_cp);
+        }
+    }while(fabs(difference(ldc_rand))>1);
+    LDC_free(&ldc_cp, 0);
+    return ldc_rand;
+}
 
+LDC *Algo_Best_Rand(LDC **ldc, long **tabDist, int tabDistLength) {
+    LDC* ldc_rand_min = Algo_Rand(*ldc, tabDist, tabDistLength);
+    ldc_rand_min = Algo_itineraire(&ldc_rand_min, tabDist, tabDistLength);
+    Algo_2opt(ldc_rand_min, tabDist, tabDistLength);
+    LDC* ldc_rand;
+    clock_t t1;
+    t1 = clock();
+    do {
+        ldc_rand = Algo_Rand(*ldc, tabDist, tabDistLength);
+        ldc_rand = Algo_itineraire(&ldc_rand, tabDist, tabDistLength);
+        Algo_2opt(ldc_rand, tabDist, tabDistLength);
+        if(score(ldc_rand_min, 0)<score( ldc_rand, 0))
+        {
+            ldc_rand_min = ldc_rand;
+        }
+    }while((float)(clock()-t1)<30000.0);
+    return ldc_rand_min;
+}

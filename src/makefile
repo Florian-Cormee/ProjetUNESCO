@@ -7,12 +7,6 @@ projectUnesco.o : projectUnesco.c algorithm.h site.h utils.h
 algorithm.o : algorithm.c algorithm.h site.h utils.h
 	gcc -c algorithm.c 
 
-testh : test_haversine.o site.o haversine.o utils.o lectureFichiers.o
-	gcc test_haversine.o site.o haversine.o utils.o lectureFichiers.o -o testh -lm 
-
-test_harversine.o : test_haversine.c haversine.h utils.h site.h
-	gcc -c test_haversine.c 
-
 haversine.o : haversine.c haversine.h
 	gcc -c haversine.c
 
@@ -26,4 +20,4 @@ lectureFichiers.o : lectureFichiers.c lectureFichiers.h
 	gcc -c lectureFichiers.c 
 
 clean :
-	rm -f *.o testh main unesco
+	rm -f *.o unesco

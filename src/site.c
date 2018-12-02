@@ -170,7 +170,6 @@ Site *LDC_get(LDC *ldc, int i) {
     CelluleLDC *courant = ldc->premier;
 
     for (int index = 0; index < i && courant != NULL; index++) {
-        printf("ldc.get(%3d) = %p\n", index, courant->s);
         courant = courant->suiv;
     }
 

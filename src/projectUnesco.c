@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "algorithm.h"
 #include "utils.h"
 #include "site.h"
@@ -9,6 +11,7 @@
 #if !TEST_MODE
 
 int main(int argc, char *argv[]) {
+    srand(time(NULL));
     double homeLat = 0;
     double homeLon = 0;
     int indice = 0;
@@ -42,10 +45,13 @@ int main(int argc, char *argv[]) {
 
 
     printf("Welcome to the Unesco travel challenge!\nChoose the algorithm : ");
-    //scanf("%d", &indice);
-    //if (indice == 1) {
+    scanf("%d", &indice);
+    if (indice == 1) {
     itineraire = Algo_itineraire(&siteLDC, distTab, distTabLength);
-    //}
+    }
+    if (indice == 2) {
+    itineraire = Algo_Best_Rand(&siteLDC, distTab, distTabLength);
+    }
 
     printPath(itineraire, homeLat, homeLon, distTab, distTabLength);
     printf("Score total : %4d pts !\n", score(itineraire, 1));

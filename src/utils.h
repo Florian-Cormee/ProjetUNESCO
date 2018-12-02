@@ -40,7 +40,7 @@ Entree:
 Sortie:
     Tableau des distances des sites en eux et avec le point de depart
 */
-long **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille); /* Modifier indice des sites */
+long **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille);
 
 /*
 Affiche dans la console une matrice d'entier
@@ -56,6 +56,8 @@ void freeTab(long **tab, int taille);
 long dist(long **tabDist, Site *site1, Site *site2);
 
 int score(LDC *ldc, int printDetails);
+
+int difference(LDC *ldc);
 
 void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int tabSize);
 
