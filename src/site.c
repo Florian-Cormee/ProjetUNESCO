@@ -8,11 +8,11 @@
 Site *Site_construire(int n, char *nom, double lat, double lon, char *categorie, char *pays, int enDanger) {
     Site *site = (Site *) malloc(sizeof(Site));
     site->n = n;
-    site->nom = strdup(nom);
+    site->nom = nom == NULL ? NULL : strdup(nom);
     site->lat = lat;
     site->lon = lon;
-    site->categorie = strdup(categorie);
-    site->pays = strdup(pays);
+    site->categorie = categorie == NULL ? NULL : strdup(categorie);
+    site->pays = pays == NULL ? NULL : strdup(pays);
     site->enDanger = enDanger;
     return site;
 }

@@ -12,54 +12,35 @@
 #define VITESSE (80)
 #define MAX_TIME (504)
 #define BREAK_TIME (6)
-#define BREAK_DIST (VITESSE * BREAK_TIME * 100)
+#define BREAK_DIST (VITESSE * BREAK_TIME)
 
-/* 
-Converti la distance en m en cm.
+/**
+ * Calcule (en km) toutes les distances entres tous les sites et le point de depart.
+ *
+ * @param ldc Liste des sites
+ * @param lat Lattiude du point de depart
+ * @param lon Longitude du point de depart
+ * @param taille taille de la matricre retournée
+ * @return matrice des distances des sites en eux et avec le point de depart
+ */
+double **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille); /* Modifier indice des sites */
 
-Entree:
-    d   Distance (en m) a convertir
-    
-Sortie:
-    Distance arondie en cm
+/**
+* Affiche dans la console une matrice d'entier.
+*
+* @param tab matrice carre d'entiers
+* @param taille taille de la matrice
 */
-long convKmCm(double d);
 
-double convCmKm(long d);
+void afficheTab(double **tab, int taille);
 
-long calculDistanceCm(double lat1, double lon1, double lat2, double lon2);
-
-/*
-Calcule (en cm) toutes les distances entres tous les sites et le point de depart
-
-Entree:
-    l   Liste des sites
-    lon Longitude du point de depart
-    lat lattiude du point de depart
-    
-Sortie:
-    Tableau des distances des sites en eux et avec le point de depart
-*/
-long **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille);
-
-/*
-Affiche dans la console une matrice d'entier
-
-Entree:
-    tab     matrice carre d'entiers
-    taille  taille de la matrice
-*/
-void afficheTab(long **tab, int taille);
-
-void freeTab(long **tab, int taille);
-
-long dist(long **tabDist, Site *site1, Site *site2);
+void freeTab(double **tab, int taille);
 
 int score(LDC *ldc, int printDetails);
 
 int difference(LDC *ldc);
 
-void printPath(LDC *ldc, double homeLat, double homeLong, long **tabDist, int tabSize);
+void printPath(LDC *ldc, double homeLat, double homeLong, double **tabDist, int tabSize);
 
 int pathToFile(LDC *ldc, double homeLat, double homeLong);
 

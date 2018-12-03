@@ -7,7 +7,6 @@
 #include "algorithm.h"
 
 #define TEST_MODE 0
-
 #if !TEST_MODE
 
 int main(int argc, char *argv[]) {
@@ -17,7 +16,7 @@ int main(int argc, char *argv[]) {
     int indice = 0;
     Site **siteTab = NULL;
     int siteTabLength = 0;
-    long **distTab = NULL;
+    double **distTab = NULL;
     int distTabLength = 0;
     LDC *siteLDC = NULL;
     LDC *itineraire = NULL;
@@ -52,7 +51,9 @@ int main(int argc, char *argv[]) {
     if (indice == 2) {
     itineraire = Algo_Best_Rand(&siteLDC, distTab, distTabLength);
     }
-
+    if (indice == 3) {
+    itineraire = Algo_Recuit_Simule(&siteLDC, distTab, distTabLength);
+    }
     printPath(itineraire, homeLat, homeLon, distTab, distTabLength);
     printf("Score total : %4d pts !\n", score(itineraire, 1));
 
