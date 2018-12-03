@@ -29,4 +29,8 @@ Algo_score(double **tabDist, int tabDistLength, int difference, Site *potentialS
 
 double Algo_2opt(LDC *itineraire, double **tabDist, int tabDistLength);
 
+double Algo_2opt2(LDC **itineraire, double **tabDist, int tabDistLength);
+
+LDC *Algo_2optSwap(LDC *itineraire, int i, int k);
+
 #endif

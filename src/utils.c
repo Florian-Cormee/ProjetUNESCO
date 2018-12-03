@@ -199,7 +199,7 @@ int pathToFile(LDC *ldc, double homeLat, double homeLong) {
 }
 
 int showMap(LDC *ldc, double homeLat, double homeLong) {
-    if (ldc == NULL) { return 0; }
+    if (ldc == NULL) { return ERROR; }
     pathToFile(ldc, homeLat, homeLong);
     return system("java -jar ../UnescoMap.jar");
 }

@@ -43,9 +43,9 @@ int main(int argc, char *argv[]) {
     //if (indice == 1) {
     itineraire = Algo_itineraire(&siteLDC, distTab, distTabLength);
     //}
-    /*LDC_affiche(siteLDC);
-    LDC_popBack(siteLDC);
-    LDC_affiche(siteLDC);*/
+    /* LDC *new = Algo_2optSwap(itineraire,35,40);
+     printPath(new, homeLat, homeLon, distTab, distTabLength);
+     LDC_free(&new,FALSE);*/
     printPath(itineraire, homeLat, homeLon, distTab, distTabLength);
     printf("Score total : %4d pts !\n", score(itineraire, 1));
 
