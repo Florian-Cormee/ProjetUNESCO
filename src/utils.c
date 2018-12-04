@@ -5,10 +5,10 @@
 #include "site.h"
 #include "haversine.h"
 
-double **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille) {
-    if (taille == NULL) { return NULL; }
+double **calculToutesDistances(LDC *ldc, double homeLat, double lon, int *tabDistLength) {
+    if (tabDistLength == NULL) { return NULL; }
     if (ldc == NULL) {
-        *taille = 0;
+        *tabDistLength = 0;
         return NULL;
     }
     int longueur = LDC_taille(ldc); // longueur de la List ldc
@@ -16,21 +16,18 @@ double **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille) {
     double **dist = (double **) malloc(sizeof(double *) * (longueur + 1));
     int i = 0; // index de l'iteration mere
     int j = 0; // index de la sous iteration
-    double distance; // distance en cm entre deux lieux (sites ou origine)
+    double distance;
 
-    *taille = longueur + 1; // on indique la taille du tableau renvoye
-    for (int i0 = 0; i0 < *taille; ++i0) {
-        dist[i0] = (double *) malloc(sizeof(double) * (*taille));//on creer les lignes
+    *tabDistLength = longueur + 1; // on indique la taille du tableau renvoye
+    for (int i0 = 0; i0 < *tabDistLength; ++i0) {
+        dist[i0] = (double *) malloc(sizeof(double) * (*tabDistLength));//on creer les lignes
         for (int j0 = 0;
              j0 < longueur + 1; ++j0) { dist[i0][j0] = -1; }//on l'initialise avec une valeur par defaut de -1
     }
-
     for (CelluleLDC *courant1 = ldc->premier; courant1 != NULL; courant1 = courant1->suiv) {//iteration sur la liste
         j = 0;
-        //courant1->s->n = i;
         for (CelluleLDC *courant2 = ldc->premier; courant2 != NULL; courant2 = courant2->suiv) {
             if (dist[i][j] == -1) {//on a pas calcule la distance
-                //courant2->s->n = j;
                 if (courant1 == courant2) {//on veut connaitre la distance entre deux points identiques
                     distance = 0;
                 } else {
@@ -42,37 +39,31 @@ double **calculToutesDistances(LDC *ldc, double lat, double lon, int *taille) {
             }
             j++;
         }
-        distance = calculDistance((courant1->s)->lat, (courant1->s)->lon, lat,
-                                  lon);//distance entre un lieu et le depart
-        dist[i][j] = distance;// conversion en cm
+        distance = calculDistance((courant1->s)->lat, (courant1->s)->lon, homeLat, lon);//distance entre un lieu et le depart
+        dist[i][j] = distance;
         dist[j][i] = distance;//comme la distance est commutative on evite de recalculer la meme distance
         i++;
     }
-    dist[(*taille) - 1][(*taille) - 1] = 0;
-
+    dist[(*tabDistLength) - 1][(*tabDistLength) - 1] = 0;
     return dist;
 }
 
-void afficheTab(double **tab, int taille) {
-    for (int i = 0; i < taille; i++) {
+void afficheTab(double **tabDist, int tabDistLength) {
+    for (int i = 0; i < tabDistLength; i++) {
         printf("|");
-        for (int j = 0; j < taille; j++) {
-            printf("%10.2lf|", tab[i][j]);
+        for (int j = 0; j < tabDistLength; j++) {
+            printf("%10.2lf|", tabDist[i][j]);
         }
         printf("\n");
     }
 }
 
-void freeTab(double **tab, int taille) {
-    if (tab == NULL) { return; }
-    for (int i = 0; i < taille; i++) {
-        free(*(tab + i));
+void freeTab(double **tabDist, int tabDistLength) {
+    if (tabDist == NULL) { return; }
+    for (int i = 0; i < tabDistLength; i++) {
+        free(*(tabDist + i));
     }
-    free(tab);
-}
-
-long dist(long **tabDist, Site *site1, Site *site2) {
-    return tabDist[site1->n][site2->n];
+    free(tabDist);
 }
 
 int score(LDC *ldc, int printDetails) {
@@ -107,29 +98,27 @@ int score(LDC *ldc, int printDetails) {
             }
         }
     }
-
-    for (nbPays = 0; nbPays < taille && pays[nbPays] != NULL; nbPays++) {}
-
+    for (nbPays = 0; nbPays < taille && pays[nbPays] != NULL; nbPays++); // Compter le nombre de pays visité
     if (printDetails) {
         printf("Evaluation:\n\t%3d destinations x 1 point\n\t%3d pays x 2 points\n\t%3d endangered x 3 points\n",
                taille, nbPays, nbEndangered);
     }
-    return taille + 2 * nbPays + 3 * nbEndangered;
+    return taille + 2 * nbPays + 3 * nbEndangered; //retourne le score
 }
 
 int difference(LDC *ldc) {
     int difference = 0;
-    for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
+    for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) { // Parcours tous les sites du chemin
         if (strcmp(cell->s->categorie, "Cultural") == 0) {
             difference++;
         } else if (strcmp(cell->s->categorie, "Natural") == 0) {
             difference--;
         }
     }
-    return difference;
+    return difference; // Si la difference > 0 alors il y a plus de Cultural que de Natural // Si la difference < 0 alors il y a plus de Natural que de Cultural 
 }
 
-void printPath(LDC *ldc, double homeLat, double homeLong, double **tabDist, int tabSize) {
+void printPath(LDC *ldc, double homeLat, double homeLon, double **tabDist, int tabSize) {
     if (ldc == NULL || tabDist == NULL) { return; }
     int i = 0; // Indice du lieu
     int nbCult = 0;
@@ -140,15 +129,14 @@ void printPath(LDC *ldc, double homeLat, double homeLong, double **tabDist, int 
     double time = 0;
     CelluleLDC *prec = NULL;
     printf("ITINERAIRE DE VOYAGE\n");
-    printf("%2d) Starting point - (%lf, %lf)\n", i++, homeLat, homeLong);
+    printf("%2d) Starting point - (%lf, %lf)\n", i++, homeLat, homeLon); // Affiche la position d'origine
     #if DEBUG
     printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
     #endif
-
     for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
         printf("%2d) ", i++);
         Site_affichage(cell->s);
-
+/* Compte chaque categories de site */
         if (strcmp(cell->s->categorie, "Cultural") == 0) {
             nbCult++;
         } else if (strcmp(cell->s->categorie, "Natural") == 0) {
@@ -159,13 +147,12 @@ void printPath(LDC *ldc, double homeLat, double homeLong, double **tabDist, int 
             printf(" /!\\ No matching type for :");
             Site_affichage(cell->s);
         }
-
         if (prec == NULL) {
             deltaDist = tabDist[cell->s->n][tabSize - 1];
         } else {
             deltaDist = tabDist[prec->s->n][cell->s->n];
         }
-        distance += deltaDist;
+        distance += deltaDist;  // Calcul la distance parcourue
         time += BREAK_TIME + deltaDist / VITESSE;
         prec = cell;
         #if DEBUG
@@ -175,25 +162,25 @@ void printPath(LDC *ldc, double homeLat, double homeLong, double **tabDist, int 
     if (prec != NULL) {
         deltaDist = tabDist[prec->s->n][tabSize - 1];
         distance += deltaDist;
-        time += 6 + deltaDist / VITESSE;
+        time += 6 + deltaDist / VITESSE; // Transforme la distance en temps
     }
-    printf("%2d) Starting point - (%lf, %lf)\n", i, homeLat, homeLong);
+/* Présentation du resultat */
+    printf("%2d) Starting point - (%lf, %lf)\n", i, homeLat, homeLon);
     #if DEBUG
     printf("\tdist = %ld\n\ttime = %lf\n", distance, time);
     #endif
-
     printf("Nombre de sites culturel :\t %2d\nNombre de sites naturel :\t %2d\nNombre de sites mixed :\t\t %2d\n",
            nbCult, nbNat, nbMixed);
     printf("Distance parcourue :\t\t  %.2lf km\n", distance);
     printf("Duree du voyage :\t\t\t  %lf heures (max = %d heures)\n", time, MAX_TIME);
 }
 
-int pathToFile(LDC *ldc, double homeLat, double homeLong) {
+int pathToFile(LDC *ldc, double homeLat, double homeLon) {
     FILE *file = fopen("Tour.txt", "w");
     Site *s;
 
     if (file != NULL) {
-        fprintf(file, "%lf, %lf, \n", homeLat, homeLong);
+        fprintf(file, "%lf, %lf, \n", homeLat, homeLon);
 
         if (ldc != NULL) {
             for (CelluleLDC *cell = ldc->premier; cell != NULL; cell = cell->suiv) {
@@ -202,7 +189,7 @@ int pathToFile(LDC *ldc, double homeLat, double homeLong) {
             }
         }
 
-        fprintf(file, "%lf, %lf, \n", homeLat, homeLong);
+        fprintf(file, "%lf, %lf, \n", homeLat, homeLon);
         fclose(file);
     } else {
         return 0;
@@ -210,8 +197,8 @@ int pathToFile(LDC *ldc, double homeLat, double homeLong) {
     return 1;
 }
 
-int showMap(LDC *ldc, double homeLat, double homeLong) {
-    if (ldc == NULL) { return 0; }
-    pathToFile(ldc, homeLat, homeLong);
-    return system("java -jar ../UnescoMap.jar");
+int showMap(LDC *ldc, double homeLat, double homeLon) {
+    if (ldc == NULL) { return ERROR; } // Si la liste n'existe pas
+    pathToFile(ldc, homeLat, homeLon); // Envoie des donnees dans le fichier Tours.txt
+    return system("java -jar ../UnescoMap.jar"); // Execution du programme .jar
 }
