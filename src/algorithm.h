@@ -76,6 +76,24 @@ double Algo_score(LDC *itineraire, double **tabDist, int tabDistLength, int diff
  */
 double Algo_2opt(LDC *itineraire, double **tabDist, int tabDistLength); //Par echange
 
+/**
+ * Inverse une portion de l'itineraire
+ * @param itineraire itineraire a travailler
+ * @param i debut de la portion (exclu)
+ * @param k fin de la portion (inclu)
+ * @return l'itineraire dont une portion est inversee
+ */
+LDC *Algo_2optSwap(LDC *itineraire, int i, int k);
+
+/**
+ * Optimise un itineraire
+ * @param itineraire itineraire a optimiser
+ * @param tabDist matrice des distances
+ * @param tabDistLength taille de la matrice des distances
+ * @return longueur de l'itineraire une fois optimise
+ */
+double Algo_2opt2(LDC **itineraire, double **tabDist, int tabDistLength);
+
 LDC *Algo_Rand(LDC *ldc, double **tabDist, int tabDistLength);
 
 LDC *Algo_Best_Rand(LDC **ldc, double **tabDist, int tabDistLength);
