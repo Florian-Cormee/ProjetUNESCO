@@ -190,7 +190,6 @@ double Algo_2opt(LDC *itineraire, double **tabDist, int tabDistLength) {
     if (itineraire == NULL || tabDist == NULL) {
         return ERROR;
     }
-
     LDC_ajoute_fin(itineraire, home);
     while (upgrade) {
         upgrade = FALSE;
@@ -425,3 +424,115 @@ LDC *Algo_Metropolis(LDC *l_n, LDC *l_b, int T, double **tabDist, int tabDistLen
         }
     }
 }
+
+/// TEST ///
+
+Site *Proche(LDC *ldc, int indice, double **tabDist) {
+    Site *s_min;
+    double distance_min = MAX_TIME*VITESSE;
+    for(CelluleLDC *cell=ldc->premier; cell!=NULL; cell=cell->suiv) {
+        if(distance_min>tabDist[indice][cell->s->n]) {
+            s_min = cell->s;
+            distance_min=tabDist[indice][s_min->n];
+        }
+    }
+    return s_min;
+}
+
+Site *Energie(LDC *ldc, int indice, double **tabDist, LDC *l) {
+    Site *s_min;
+    double energie_min = MAX_TIME*VITESSE, energie;
+    int point;
+    double distance;
+    int taille = LDC_taille(l);//taille & nombre de destinations
+    char *pays[taille];//tableau des pays visites
+    int j = 0;
+    for (CelluleLDC *cell = l->premier; cell != NULL; cell = cell->suiv) {
+        pays[j] = cell->s->pays;
+        j++;
+    }
+    for(CelluleLDC *cell=ldc->premier; cell!=NULL; cell=cell->suiv) {
+        point = 1;
+        distance = tabDist[indice][cell->s->n];
+        for ( j=0; j<taille; j++) {
+            if(strcmp(pays[j],cell->s->pays)) {
+                break;
+            }
+        }
+        if(j==taille) {
+            point+=2;
+        }
+        if(cell->s->enDanger) {
+            point+=3;
+        }
+        energie = distance*exp(-point);
+        if(energie<energie_min) {
+            s_min = cell->s;
+            energie_min=energie;
+        }
+    }
+    return s_min;
+}
+
+Site *Point(LDC *ldc, int indice, double **tabDist, LDC *l) {
+    Site *s_min;
+    double point_min = 0, point = 1;
+    int taille = LDC_taille(l);//taille & nombre de destinations
+    char *pays[taille];//tableau des pays visites
+    int j = 0;
+    for (CelluleLDC *cell = l->premier; cell != NULL; cell = cell->suiv) {
+        pays[j] = cell->s->pays;
+        j++;
+    }
+    for(CelluleLDC *cell=ldc->premier; cell!=NULL; cell=cell->suiv) {
+        point = 1;
+        for ( j=0; j<taille; j++) {
+            if(strcmp(pays[j],cell->s->pays)) {
+                break;
+            }
+        }
+        if(j==taille) {
+            point+=2;
+        }
+        if(cell->s->enDanger) {
+            point+=3;
+        }
+        if(point_min==point && tabDist[s_min->n][indice]>tabDist[cell->s->n][indice]) {
+            s_min = cell->s;
+            point_min=point;
+        }
+        if(point_min<point) {
+            s_min = cell->s;
+            point_min=point;
+        }
+    }
+    return s_min;
+}
+
+LDC *Algo_Parcours(LDC **ldc, double **tabDist, int tabDistLength) {
+    LDC *l;
+    LDC *ldc_cp = *ldc;
+    int taille;
+    int indice_prev;
+    long distance_restant = MAX_TIME*VITESSE;
+    Site *s;
+    do {
+    indice_prev = tabDistLength-1;
+    ldc_cp = *ldc;
+    taille = LDC_taille(ldc_cp);
+    l = LDC_nouveau();
+    distance_restant = MAX_TIME*VITESSE;
+        while(taille>0) {
+            s = Proche( ldc_cp, indice_prev, tabDist);
+            LDC_ajoute_fin(l, s);
+            LDC_rm(ldc_cp, s);
+            distance_restant-= tabDist[s->n][indice_prev]+BREAK_DIST;
+            indice_prev = s->n;
+            ldc_cp = Algo_Champ_des_Possibles(ldc_cp, tabDist, indice_prev, tabDistLength-1, distance_restant, tabDistLength);
+            taille = LDC_taille(ldc_cp);
+        }
+    }while(LDC_empty(l) || fabs(difference(l))>1);
+    LDC_free(&ldc_cp, 0);
+    return l;
+}
+

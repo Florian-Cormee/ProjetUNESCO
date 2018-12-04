@@ -39,6 +39,16 @@ LDC *Algo_Recuit_Simule(LDC **ldc, double **tabDist, int tabDistLength);
 double Algo_energie(LDC *l, double **tabDist, int tabDistLength);
 
 LDC *Algo_Metropolis(LDC *l_n, LDC *l_b, int T, double **tabDist, int tabDistLength);
+
+/// TEST ///
+
+Site *Proche(LDC *ldc, int indice, double **tabDist);
+
+Site *Energie(LDC *ldc, int indice, double **tabDist, LDC *l);
+
+Site *Point(LDC *ldc, int indice, double **tabDist, LDC *l);
+
+LDC *Algo_Parcours(LDC **ldc, double **tabDist, int tabDistLength);
 #endif
 
 

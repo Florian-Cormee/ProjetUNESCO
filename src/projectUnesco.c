@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     itineraire = Algo_itineraire(&siteLDC, distTab, distTabLength);
     }
     if (indice == 2) {
-    itineraire = Algo_Best_Rand(&siteLDC, distTab, distTabLength);
+    itineraire = Algo_Parcours(&siteLDC, distTab, distTabLength);
     }
     if (indice == 3) {
     itineraire = Algo_Recuit_Simule(&siteLDC, distTab, distTabLength);
